@@ -1,0 +1,99 @@
+.rsidebar,.sidenav{
+    position:fixed;
+    z-index:1;
+    top:50px;
+    overflow-x:hidden;
+    padding:8px 0
+}
+
+.sidenav{
+    width:150px;
+    left:5px
+}
+
+.sidenav a,.dropdown-content a{
+    padding:6px 8px 6px 16px;
+    text-decoration:none;
+    font-size:18px;
+    color:#2196f3;
+    display:block
+}
+
+.sidenav a.active,.sidenav a:hover,.dropdown-content a:hover,.dropdown-content a.active{
+    color:#064579
+}
+
+.rsidebar{
+    float:right;
+    width:130px;
+    right:5px
+}
+
+.main{
+    margin-left:155px;
+    margin-right:135px;
+    padding:0 10px
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+.dropdown-content {
+    display: none;
+    position: relative;
+    background-color: #f9f9f9;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.tables, .tabler {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.tables td, .tables th {
+    border: 1px solid;
+    text-align: left;
+    padding: 8px;
+}
+
+.tabler td, .tabler th {
+    border: 1px solid;
+    text-align: center;
+    padding: 8px;
+}
+
+.tabler img {
+    max-width:500px;
+}
+
+.tablerec td {
+    padding-right: 30px;
+}
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+}
+
+@media screen and (max-height:450px){
+    .rsidebar,.sidenav{padding-top:15px}
+    .sidenav a{font-size:16px}
+}
+
+@media screen and (max-width: 576px){
+    #transactions-table{
+      font-size:3vw; /* 2vw = 2 times view width (dynmaic text size)  */
+      border-collapse: collapse;
+      text-align: left;
+    }
+}

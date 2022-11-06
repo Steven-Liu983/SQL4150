@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Hostel{% endblock %}
+
+{% block content %}
+
+<div class="main">
+  <div class="jumbotron">
+    <h1 align="center">Student Flats</h1>
+    <br>
+
+    <form method="POST">
+      {{ form.hidden_tag()}}
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <strong>{{ form.flat_num.label }}</strong>
+            {{ form.flat_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-6">
+            <strong>{{ form.avail_room.label }}</strong>
+            {{ form.avail_room(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-group">
+        <strong>
+          {{ form.address.label }}
+        </strong>
+        {{ form.address(class="form-control") }}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+    </form>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="jumbotron">
+      <h1>Error 403: Forbidden</h1>
+      <p>You do not have sufficient permissions to access this page.</p>
+      <hr>
+      <a href="{{url_for('index')}}">Go to homepage</a>
+    </div>
+{% endblock %}

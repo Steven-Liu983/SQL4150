@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Hostel{% endblock %}
+
+{% block content %}
+
+<div class="main">
+  <div class="jumbotron">
+    <h1 align="center">New Lease</h1>
+    <br>
+
+    <form method="POST">
+      {{ form.hidden_tag()}}
+      <div class="form-row">
+        <div class="form-group col-md-4">
+            <strong>{{ form.lease_num.label }}</strong>
+            {{ form.lease_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.semester.label }}</strong>
+            {{ form.semester(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.grade_num.label }}</strong>
+            {{ form.grade_num(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <strong>{{ form.hostel.label }}</strong>
+          {{ form.hostel(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.build_num.label }}</strong>
+            {{ form.build_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.room_num.label }}</strong>
+            {{ form.room_num(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+            <strong>{{ form.place_num.label }}</strong>
+            {{ form.place_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.lease_start.label }}</strong>
+            {{ form.lease_start(class="form-control", type="date") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.lease_end.label }}</strong>
+            {{ form.lease_end(class="form-control", type="date") }}
+        </div>
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+    </form>
+  </div>
+</div>
+
+{% endblock %}

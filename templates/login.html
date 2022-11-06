@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Login Form{% endblock %}
+
+{% block content %}
+
+<div class="main">
+  <div class="jumbotron">
+    <h1 align="center">Administrator Login</h1>
+    {% for message in get_flashed_messages() %}
+      <div class="alert alert-warning" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+
+    <form id="login_form" method="POST">
+      {{ form.hidden_tag()}}
+      <div class="form-group">
+        <strong>
+          {{ form.email.label }}
+        </strong>
+        <i class="icon-envelope"></i>
+        {{ form.email(class="form-control", placeholder="Enter Email") }}
+      </div>
+      <div class="form-group">
+        <strong>
+          {{ form.password.label }}
+        </strong>
+        <i class="icon-key"></i>
+        {{ form.password(class="form-control", placeholder="Enter Password") }}
+      </div>
+      {{ form.submit(class="btn btn-success") }}
+    </form>
+  </div>
+</div>
+
+{% endblock %}

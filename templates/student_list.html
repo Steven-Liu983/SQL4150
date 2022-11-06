@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Hostel{% endblock %}
+
+{% block content %}
+
+<div class="sidenav">
+  <a href="{{url_for('dashboard')}}"><i class="icon-dashboard"></i> Dashboard</a>
+  <div class='dropdown'>
+    <a href="{{url_for('students')}}"><i class="icon-user"></i> Students</a>
+    <div class="dropdown-content">
+      <a class="active" href="{{url_for('student_list')}}">Student List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('advisors')}}"><i class="icon-user"></i> Advisors</a>
+    <div class="dropdown-content">
+      <a href="{{url_for('advisor_list')}}">Advisor List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('staffs')}}"><i class="icon-user"></i> Staffs</a>
+    <div class="dropdown-content">
+      <a href="{{url_for('staff_list')}}">Staff List</a>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="jumbotron">
+    {% if session['admin'] %}
+    <h1 align="center">List Of Students</h1>
+    <br>
+    <table class="tables">
+        <thead>
+        <tr>
+          <th>Grade 12 Number</th>
+          <th>Name</th>
+          <th>Address</th>
+          <th>Date Of Birth</th>
+          <th>Gender</th>
+          <th>Category</th>
+          <th>Nationality</th>
+          <th>Status</th>
+          <th>Major</th>
+          <th>Advisor ID</th>
+          <th>Special Needs</th>
+          <th>Comments</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+        <tr>
+          <td>{{student.grade_num}}</td>
+          <td>{{student.fname}} {{student.lname}}</td>
+          <td>{{student.address}}, {{student.city}}, {{student.province}} {{student.postcode}}</td>
+          <td>{{student.dob}}</td>
+          <td>{{student.gender}}</td>
+          <td>{{student.category}}</td>
+          <td>{{student.nationality}}</td>
+          <td>{{student.status}}</td>
+          <td>{{student.major}}</td>
+          <td>{{student.advisor_id}}</td>
+          <td>{{student.special_needs}}</td>
+          <td>{{student.comments}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+      <a href="{{ url_for('login') }}">Login</a>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

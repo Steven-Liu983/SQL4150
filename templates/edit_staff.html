@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Hostel{% endblock %}
+
+{% block content %}
+
+<div class="main">
+  <div class="jumbotron">
+    <h1 align="center">Edit Staff Information</h1>
+    <br>
+
+    <form method="POST">
+      {{ form.hidden_tag()}}
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <strong>{{ form.fname.label }}</strong>
+            {{ form.fname(class="form-control") }}
+        </div>
+        <div class="form-group col-md-6">
+            <strong>{{ form.lname.label }}</strong>
+            {{ form.lname(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-group">
+        <strong>
+          {{ form.address.label }}
+        </strong>
+        {{ form.address(class="form-control", placeholder="Enter Address") }}
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          {{ form.city(class="form-control", placeholder="City") }}
+        </div>
+        <div class="form-group col-md-4">
+          {{ form.province(class="form-control", placeholder="Province") }}
+        </div>
+        <div class="form-group col-md-4">
+            {{ form.postcode(class="form-control", placeholder="Postal Code") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <strong>{{ form.dob.label }}</strong>
+            {{ form.dob(class="form-control", type='date') }}
+        </div>
+        <div class="form-group col-md-6">
+            <strong>{{ form.gender.label }}</strong>
+            {{ form.gender(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <strong>{{ form.position.label }}</strong>
+            {{ form.position(class="form-control") }}
+        </div>
+        <div class="form-group col-md-6">
+            <strong>{{ form.location.label }}</strong>
+            {{ form.location(class="form-control") }}
+        </div>
+      </div>
+      {{ form.submit(class="btn btn-success") }}
+    </form>
+  </div>
+</div>
+
+{% endblock %}

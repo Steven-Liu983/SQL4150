@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Hostel{% endblock %}
+
+{% block content %}
+
+<div class="main">
+  <div class="jumbotron">
+    <h1 align="center">Hall Of Residence</h1>
+    <br>
+
+    <form method="POST">
+      {{ form.hidden_tag()}}
+      <div class="form-row">
+        <div class="form-group col-md-4">
+            <strong>{{ form.hall_num.label }}</strong>
+            {{ form.hall_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.name.label }}</strong>
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.phone.label }}</strong>
+            {{ form.phone(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-group">
+        <strong>
+          {{ form.address.label }}
+        </strong>
+        {{ form.address(class="form-control") }}
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+            <strong>{{ form.manager.label }}</strong>
+            {{ form.manager(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.staff_num.label }}</strong>
+            {{ form.staff_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.capacity.label }}</strong>
+            {{ form.capacity(class="form-control") }}
+        </div>
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+    </form>
+  </div>
+</div>
+
+{% endblock %}
