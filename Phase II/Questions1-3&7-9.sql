@@ -16,6 +16,67 @@ INSERT INTO STUDENTS VALUES (26443806, 'Jose', 'Garcia', '12-APR-2000', 'Male', 
 INSERT INTO STUDENTS VALUES (72574765, 'Bob', 'Miller', '25-MAY-2000', 'Male', 'American', 'Placed', 'Engineering');
 INSERT INTO STUDENTS VALUES (60270768, 'Jennifer', 'Johnson', '19-SEP-2000', 'Female', 'Canadian', 'Waiting', 'Biology');
 
+--Question 1
+DECLARE
+stu_fname VARCHAR2(20);
+stu_lname VARCHAR2(20);
+stu_num NUMBER:=72269035;
+stu_dob DATE;
+stu_str char(35):='The information of the student is: ';
+stu_status varchar2(10);
+if_status boolean;
+BEGIN
+Select fname,lname,dob,status Into stu_fname,stu_lname,stu_dob,stu_status From STUDENTS
+WHERE grade_num=stu_num;
+if stu_status='Placed'
+then if_status:=true;
+else if_status:=false;
+End if;
+DBMS_OUTPUT.PUT_LINE(stu_str||'First Name: '||stu_fname||' ,Last Name: '||stu_lname||', DOB: '||stu_dob||', Status: '||case when if_status=true then 'Is Placed' else 'Is Waiting' end);
+END;
+
+--Question 2
+CREATE OR REPLACE PROCEDURE STU_INFO(STU_NUM NUMBER)
+AS
+stu_lname students.lname%TYPE;
+stu_fname students.fname%TYPE;
+stu_status students.STATUS%TYPE;
+Begin
+select fname,lname,status into stu_fname,stu_lname,stu_status From STUDENTS 
+WHERE grade_num=stu_num; 
+DBMS_OUTPUT.PUT_LINE('Student Information: '||'First Name: '||stu_fname||', Last Name: '||stu_lname||', Status: '||stu_status); 
+End;
+
+BEGIN
+    STU_INFO(26443806);
+END;
+
+--Question 3
+Declare
+stu_num students.GRADE_NUM%TYPE:=88452883;  
+stu_status students.STATUS%TYPE; 
+stu_dob students.dob%TYPE;
+DateDiff number;
+Begin
+Select DOB,Status into stu_dob,stu_status from Students where stu_num=GRADE_NUM;
+Select floor((CURRENT_DATE-stu_dob)/365) into DateDiff from dual;
+--DBMS_OUTPUT.PUT_LINE(DateDiff);
+If DateDiff>21
+Then 
+    If stu_status='Placed'
+    Then DBMS_OUTPUT.PUT_LINE('Student '||stu_num||' is over 21 and placed.');
+    Else DBMS_OUTPUT.PUT_LINE('Student '||stu_num||' is over 21 and waiting.');
+    End if;
+Else 
+    If stu_status='Placed'
+    Then DBMS_OUTPUT.PUT_LINE('Student '||stu_num||' is under 22 and placed.');
+    Else DBMS_OUTPUT.PUT_LINE('Student '||stu_num||' is over 22 and waiting.');
+    End if;
+End if;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('STUDENT '||stu_num||' NOT FOUND.');
+End;
 
 --Question 7
 CREATE OR REPLACE FUNCTION STUDENT_STATUS(STU_NUM IN STUDENTS.GRADE_NUM%TYPE)
@@ -33,7 +94,6 @@ BEGIN
 	S_STATUS := STUDENT_STATUS(72269035);
 	DBMS_OUTPUT.PUT_LINE('The student''s current status is: '||S_STATUS);
 END;
-
 
 --Question 8
 CREATE OR REPLACE PACKAGE NEW_STUDENT AS
@@ -81,7 +141,6 @@ BEGIN
 	DBMS_OUTPUT.PUT_LINE('Student''s major: '||GET_RECORD.MAJOR);
 END;
 
-
 --Question 9
 CREATE OR REPLACE TRIGGER CHANGE_MAJOR
 AFTER UPDATE ON STUDENTS
@@ -93,20 +152,3 @@ BEGIN
 END;
 
 UPDATE STUDENTS SET MAJOR = 'Biochemistry' WHERE GRADE_NUM = 60270768;
-
-
---Question 2
-CREATE OR REPLACE PROCEDURE STU_INFO(STU_NUM NUMBER)
-AS
-stu_lname students.lname%TYPE;
-stu_fname students.fname%TYPE;
-stu_status students.STATUS%TYPE;
-Begin
-select fname,lname,status into stu_fname,stu_lname,stu_status From STUDENTS 
-WHERE grade_num=stu_num; 
-DBMS_OUTPUT.PUT_LINE('Student Information: '||'First Name: '||stu_fname||', Last Name: '||stu_lname||', Status: '||stu_status); 
-End;
-
-BEGIN
-    STU_INFO(26443806);
-END;
