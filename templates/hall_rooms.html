@@ -3,10 +3,45 @@
 
 {% block content %}
 
+<div class="sidenav">
+  <a href="{{url_for('dashboard')}}"><i class="icon-dashboard"></i> Dashboard</a>
+  <div class='dropdown'>
+    <a href="{{url_for('students')}}"><i class="icon-user"></i> Students</a>
+    <div class="dropdown-content">
+      <a href="{{url_for('student_list')}}">Student List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('advisors')}}"><i class="icon-user"></i> Advisors</a>
+    <div class="dropdown-content">
+      <a href="{{url_for('advisor_list')}}">Advisor List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('staffs')}}"><i class="icon-user"></i> Staffs</a>
+    <div class="dropdown-content">
+      <a href="{{url_for('staff_list')}}">Staff List</a>
+    </div>
+  </div>
+  <a href="{{url_for('hall_res')}}"><i class="icon-building"></i> Residence Halls</a>
+  <a class="active" href="{{url_for('hall_rooms')}}"><i class="icon-columns"></i> Hall Rooms</a>
+  <a href="{{url_for('stu_flats')}}"><i class="icon-home"></i> Student Flats</a>
+  <a href="{{url_for('flat_rooms')}}"><i class="icon-th-large"></i> Flat Bedrooms</a>
+</div>
+
 <div class="main">
   <div class="jumbotron">
     <h1 align="center">Residence Hall Rooms</h1>
     <br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{category}}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
     <form method="POST">
       {{ form.hidden_tag()}}
