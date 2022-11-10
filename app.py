@@ -5,7 +5,6 @@ from sqlalchemy import Column, ForeignKey, Integer, Table
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import StringField, IntegerField, SubmitField, FloatField, PasswordField, SelectField, TextAreaField, DateTimeLocalField
 from wtforms.validators import InputRequired, EqualTo, Length, ValidationError, NumberRange
-import bcrypt
 import os
 import random
 
@@ -77,7 +76,7 @@ class Advisors(db.Model):
     department = db.Column(db.String(25), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
     room_num = db.Column(db.Integer, nullable=False)
-    staff_num = db.Column(db.Integer, ForeignKey('staff.staff_num'), nullable=False)
+    staff_num = db.Column(db.Integer, ForeignKey('staff.staff_num'), nullable=False, unique=True)   # unique staff number
     student = db.relationship('Students', back_populates='advisor')
     staff = db.relationship('Staffs', back_populates='advisor')
     
@@ -105,6 +104,7 @@ class Staffs(db.Model):
     position = db.Column(db.String(25), nullable=False)
     location = db.Column(db.String(25), nullable=False)
     advisor = db.relationship('Advisors', back_populates='staff', uselist=False)  # one-to-one relationship
+    hallres = db.relationship('HallRes', back_populates='staff', uselist=False)
 
     def __init__(self,staff_num,fname,lname,address,city,province,postcode,dob,gender,position,location):
         self.staff_num = staff_num
@@ -118,6 +118,44 @@ class Staffs(db.Model):
         self.gender = gender
         self.position = position
         self.location = location
+
+class HallRes(db.Model):
+    __tablename__ = 'hall_res'
+    hall_num = db.Column(db.Integer, primary_key=True)
+    hall_name = db.Column(db.String(25), nullable=False)
+    hall_address = db.Column(db.String(50), nullable=False)
+    hall_phone = db.Column(db.String(20), nullable=False)
+    hall_manager = db.Column(db.String(25), nullable=False)
+    staff_num = db.Column(db.Integer, ForeignKey('staff.staff_num'), nullable=False, unique=True)
+    capacity = db.Column(db.Integer, nullable=False)    # number of rooms in the hall
+    staff = db.relationship('Staffs', back_populates='hallres')
+    hallrooms = db.relationship('HallRooms', back_populates='hallnum')
+
+class HallRooms(db.Model):
+    __tablename__ = 'hall_rooms'
+    place_num = db.Column(db.Integer, primary_key=True) # identifies each room
+    room_num = db.Column(db.Integer, nullable=False)    # each room has 1 student
+    monthly_rent = db.Column(db.Float, nullable=False)
+    hall_name = db.Column(db.String(25), nullable=False)
+    hall_num = db.Column(db.Integer, ForeignKey('hall_res.hall_num'), nullable=False)
+    capacity = db.Column(db.Integer, nullable=False)    # only 1 spot in the room
+    hallnum = db.relationship('HallRes', back_populates='hallrooms')
+
+class StuFlats(db.Model):
+    __tablename__ = 'stu_flats'
+    flat_num = db.Column(db.Integer, primary_key=True)
+    flat_address = db.Column(db.String(50), nullable=False)
+    avail_room = db.Column(db.Integer, nullable=False)  # number of single bedrooms available
+    flatrooms = db.relationship('FlatsRooms', back_populates='flatnum')
+
+class FlatsRooms(db.Model):
+    __tablename__ = 'flats_rooms'
+    place_num = db.Column(db.Integer, primary_key=True) # identifies each room
+    room_num = db.Column(db.Integer, nullable=False)    # each room has 3-5 students
+    monthly_rent = db.Column(db.Float, nullable=False)
+    flat_num = db.Column(db.Integer, ForeignKey('stu_flats.flat_num'), nullable=False)
+    capacity = db.Column(db.Integer, nullable=False)    # number of spots in the bedroom (3-5)
+    flatnum = db.relationship('StuFlats', back_populates='flatrooms')
 
 
 # Create the forms
@@ -157,34 +195,35 @@ class AdvisorForm(FlaskForm):
     submit = SubmitField('Add Advisor')
 
 class HallResForm(FlaskForm):
-    hall_num = IntegerField('Hall Number')
-    name = StringField('Hall Name')
-    phone = StringField('Telephone Number')
-    address = StringField('Address')
-    manager = StringField('Manager')
-    staff_num = IntegerField('Staff Number')
-    capacity = IntegerField('Capacity')
+    hall_num = IntegerField('Hall Number', validators=[InputRequired(), NumberRange(min=1, max=10)])
+    hall_name = StringField('Hall Name', validators=[InputRequired(), Length(min=2, max=25)])
+    address = StringField('Address', validators=[InputRequired(), Length(min=2, max=50)])
+    phone = IntegerField('Telephone Number', validators=[InputRequired()])
+    manager = StringField('Manager', validators=[InputRequired(), Length(min=2, max=25)])
+    staff_num = IntegerField('Staff Number', validators=[InputRequired(), NumberRange(min=100000, max=999999)])
+    capacity = IntegerField('Capacity', validators=[InputRequired(), NumberRange(min=1, max=99)])
     submit = SubmitField('Add Hall')
 
 class HallRoomsForm(FlaskForm):
-    place_num = IntegerField('Place Number')
-    room_num = IntegerField('Room Number')
-    rent = FloatField('Monthly Rent $')
-    hall_name = StringField('Hall Name')
-    hall_num = IntegerField('Hall Number')
+    place_num = IntegerField('Place Number', validators=[InputRequired(), NumberRange(min=1, max=99)])
+    room_num = IntegerField('Room Number', validators=[InputRequired(), NumberRange(min=1, max=99)])
+    rent = FloatField('Monthly Rent $', validators=[InputRequired()])
+    hall_name = StringField('Hall Name', validators=[InputRequired(), Length(min=2, max=25)])
+    hall_num = IntegerField('Hall Number', validators=[InputRequired(), NumberRange(min=1, max=10)])
     submit = SubmitField('Add Room')
 
 class StuFlatsForm(FlaskForm):
-    flat_num = IntegerField('Flat Number')
-    address = StringField('Address')
-    avail_room = IntegerField('Available Bedrooms')
+    flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=10)])
+    address = StringField('Address', validators=[InputRequired(), Length(min=2, max=50)])
+    avail_room = IntegerField('Available Bedrooms', validators=[InputRequired(), NumberRange(min=1, max=30)])
     submit = SubmitField('Add Flat')
 
 class FlatRoomsForm(FlaskForm):
-    place_num = IntegerField('Place Number')
-    room_num = IntegerField('Bedroom Number')
-    rent = FloatField('Monthly Rent $')
-    flat_num = IntegerField('Flat Number')
+    place_num = IntegerField('Place Number', validators=[InputRequired(), NumberRange(min=1, max=30)])
+    room_num = IntegerField('Bedroom Number', validators=[InputRequired(), NumberRange(min=1, max=30)])
+    rent = FloatField('Monthly Rent $', validators=[InputRequired()])
+    flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=10)])
+    capacity = IntegerField('Number Of Beds', validators=[InputRequired(), NumberRange(min=3, max=5)])
     submit = SubmitField('Add Bedroom')
 
 class LeasesForm(FlaskForm):
@@ -286,14 +325,11 @@ def login():
                 return redirect(url_for('dashboard'))
             else:
                 flash('Incorrect Password')
+                return redirect(url_for('login'))
         else:
             flash('Invalid email or password')
+            return redirect(url_for('login'))
     return render_template('login.html', form=form)
-
-@app.route('/logout', methods=['GET'])
-def logout():
-    session['admin'] = None
-    return redirect(url_for('index'))
 
 @app.route('/dashboard')
 def dashboard():
@@ -308,27 +344,36 @@ def students():
     form = StudentForm()
     if form.validate_on_submit():
         grade_num = form.grade_num.data
-        fname = form.fname.data
-        lname = form.lname.data
-        address = form.address.data
-        city = form.city.data
-        province = form.province.data
-        postcode = form.postcode.data
-        dob = form.dob.data
-        gender = form.gender.data
-        category = form.category.data
-        nationality = form.nationality.data
-        status = form.status.data
-        major = form.major.data
         advisor_id = form.advisor_id.data
-        special_needs = form.special_needs.data
-        comments = form.comments.data
+        student_check = Students.query.filter_by(grade_num=grade_num).first()   # check the primary key
+        advisor_check = Advisors.query.filter_by(advisor_id=advisor_id).first() # check the foreign key
+        if student_check:
+            flash('The student is already added', 'danger')
+            return redirect(url_for('students'))
+        elif not advisor_check:
+            flash('The advisor does not exist', 'danger')
+            return redirect(url_for('students'))
+        else:
+            fname = form.fname.data
+            lname = form.lname.data
+            address = form.address.data
+            city = form.city.data
+            province = form.province.data
+            postcode = form.postcode.data
+            dob = form.dob.data
+            gender = form.gender.data
+            category = form.category.data
+            nationality = form.nationality.data
+            status = form.status.data
+            major = form.major.data
+            special_needs = form.special_needs.data
+            comments = form.comments.data
 
-        new_student = Students(grade_num,fname,lname,address,city,province,postcode,dob,gender,category,nationality,special_needs,comments,status,major,advisor_id)
-        db.session.add(new_student)
-        db.session.commit()
-        flash(fname + ' ' + lname + ' is added as a new student')
-        return redirect(url_for('students'))
+            new_student = Students(grade_num,fname,lname,address,city,province,postcode,dob,gender,category,nationality,special_needs,comments,status,major,advisor_id)
+            db.session.add(new_student)
+            db.session.commit()
+            flash(fname + ' ' + lname + ' is added as a new student', 'success')
+            return redirect(url_for('students'))
     return render_template('students.html', form=form)
 
 @app.route("/student_list", methods=["POST", "GET"])
@@ -345,19 +390,32 @@ def advisors():
     form = AdvisorForm()
     if form.validate_on_submit():
         advisor_id = form.advisor_id.data
-        fname = form.fname.data
-        lname= form.lname.data
-        position = form.position.data
-        department = form.department.data
-        phone = form.phone.data
-        room_num = form.room_num.data
         staff_num = form.staff_num.data
+        advisor_check = Advisors.query.filter_by(advisor_id=advisor_id).first() # check the primary key
+        staff_check = Staffs.query.filter_by(staff_num=staff_num).first()   # check the foreign key
+        staff_added = Advisors.query.filter_by(staff_num=staff_num).first() # check if the staff is already added
+        if advisor_check:
+            flash('The advisor is already added', 'danger')
+            return redirect(url_for('advisors'))
+        elif not staff_check:
+            flash('The staff does not exist', 'danger')
+            return redirect(url_for('advisors'))
+        elif staff_added:
+            flash('The staff is already added as an advisor', 'danger')
+            return redirect(url_for('advisors'))
+        else:
+            fname = form.fname.data
+            lname= form.lname.data
+            position = form.position.data
+            department = form.department.data
+            phone = form.phone.data
+            room_num = form.room_num.data
 
-        new_advisor = Advisors(advisor_id,fname,lname,position,department,str(phone),room_num,staff_num)
-        db.session.add(new_advisor)
-        db.session.commit()
-        flash(fname + ' ' + lname + ' is added as a new advisor')
-        return redirect(url_for('advisors'))
+            new_advisor = Advisors(advisor_id,fname,lname,position,department,str(phone),room_num,staff_num)
+            db.session.add(new_advisor)
+            db.session.commit()
+            flash(fname + ' ' + lname + ' is added as a new advisor', 'success')
+            return redirect(url_for('advisors'))
     return render_template('advisors.html', form=form)
 
 @app.route("/advisor_list", methods=["POST", "GET"])
@@ -374,22 +432,27 @@ def staffs():
     form = StaffForm()
     if form.validate_on_submit():
         staff_num = form.staff_num.data
-        fname = form.fname.data
-        lname = form.lname.data
-        address = form.address.data
-        city = form.city.data
-        province = form.province.data
-        postcode= form.postcode.data
-        dob = form.dob.data
-        gender = form.gender.data
-        position = form.position.data
-        location = form.location.data
+        staff_check = Staffs.query.filter_by(staff_num=staff_num).first()   # check the primary key
+        if staff_check:
+            flash('The staff is already added', 'danger')
+            return redirect(url_for('staffs'))
+        else:
+            fname = form.fname.data
+            lname = form.lname.data
+            address = form.address.data
+            city = form.city.data
+            province = form.province.data
+            postcode= form.postcode.data
+            dob = form.dob.data
+            gender = form.gender.data
+            position = form.position.data
+            location = form.location.data
 
-        new_staff = Staffs(staff_num,fname,lname,address,city,province,postcode,dob,gender,position,location)
-        db.session.add(new_staff)
-        db.session.commit()
-        flash(fname + ' ' + lname + ' is added as a new staff')
-        return redirect(url_for('staffs'))
+            new_staff = Staffs(staff_num,fname,lname,address,city,province,postcode,dob,gender,position,location)
+            db.session.add(new_staff)
+            db.session.commit()
+            flash(fname + ' ' + lname + ' is added as a new staff', 'success')
+            return redirect(url_for('staffs'))
     return render_template('staffs.html', form=form)
 
 @app.route("/staff_list", methods=["POST", "GET"])
@@ -401,22 +464,115 @@ def staff_list():
 
 @app.route("/hall_res", methods=["POST", "GET"])
 def hall_res():
+    if session['admin'] is None:
+        abort(403)
     form = HallResForm()
+    if form.validate_on_submit():
+        hall_num = form.hall_num.data
+        staff_num = form.staff_num.data
+        hall_check = HallRes.query.filter_by(hall_num=hall_num).first() # check the primary key
+        staff_check = Staffs.query.filter_by(staff_num=staff_num).first()   # check the foreign key
+        staff_added = HallRes.query.filter_by(staff_num=staff_num).first() # check if the staff is already added
+        if hall_check:
+            flash('The Hall Residence is already added', 'danger')
+            return redirect(url_for('hall_res'))
+        elif not staff_check:
+            flash('The staff does not exist', 'danger')
+            return redirect(url_for('hall_res'))
+        elif staff_added:
+            flash('The staff is already added as a Hall Manager', 'danger')
+            return redirect(url_for('hall_res'))
+        else:
+            hall_name = form.hall_name.data
+            address = form.address.data
+            phone = form.phone.data
+            manager = form.manager.data
+            capacity = form.capacity.data
+
+            new_hall = HallRes(hall_num,hall_name,address,phone,manager,staff_num,capacity)
+            db.session.add(new_hall)
+            db.session.commit()
+            flash('The Hall ' + hall_name + ' is added', 'success')
+            return redirect(url_for('hall_res'))
     return render_template('hall_res.html', form=form)
 
 @app.route("/hall_rooms", methods=["POST", "GET"])
 def hall_rooms():
+    if session['admin'] is None:
+        abort(403)
     form = HallRoomsForm()
+    if form.validate_on_submit():
+        place_num = form.place_num.data
+        hall_num = form.hall_num.data
+        place_check = HallRooms.query.filter_by(place_num=place_num).first()    # check the primary key
+        hall_check = HallRes.query.filter_by(hall_num=hall_num).first() # check the foreign key
+        if place_check:
+            flash('The Hall room is already added', 'danger')
+            return redirect(url_for('hall_rooms'))
+        elif not hall_check:
+            flash('The Residence Hall does not exist', 'danger')
+            return redirect(url_for('hall_rooms'))
+        else:
+            room_num = form.room_num.data
+            rent = form.rent.data
+            hall_name = form.hall_name.data
+            capacity = 1
+
+            new_room = HallRooms(place_num,room_num,rent,hall_name,hall_num,capacity)
+            db.session.add(new_room)
+            db.session.commit()
+            flash('A new Hall room is added', 'success')
+            return redirect(url_for('hall_rooms'))
     return render_template('hall_rooms.html', form=form)
 
 @app.route("/stu_flats", methods=["POST", "GET"])
 def stu_flats():
+    if session['admin'] is None:
+        abort(403)
     form = StuFlatsForm()
+    if form.validate_on_submit():
+        flat_num = form.flat_num.data
+        flat_check = StuFlats.query.filter_by(flat_num=flat_num).first()    # check the primary key
+        if flat_check:
+            flash('The Student Flat is already added', 'danger')
+            return redirect(url_for('stu_flats'))
+        else:
+            address = form.address.data
+            avail_room = form.avail_room.data
+
+            new_flat = StuFlats(flat_num,address,avail_room)
+            db.session.add(new_flat)
+            db.session.commit()
+            flash('A new Student Flat is added', 'success')
+            return redirect(url_for('stu_flats'))
     return render_template('stu_flats.html', form=form)
 
 @app.route("/flat_rooms", methods=["POST", "GET"])
 def flat_rooms():
+    if session['admin'] is None:
+        abort(403)
     form = FlatRoomsForm()
+    if form.validate_on_submit():
+        place_num = form.place_num.data
+        flat_num = form.flat_num.data
+        place_check = FlatsRooms.query.filter_by(place_num=place_num).first()    # check the primary key
+        flat_check = StuFlats.query.filter_by(flat_num=flat_num).first()    # check the foreign key
+        if place_check:
+            flash('The Flat bedroom is already added', 'danger')
+            return redirect(url_for('flat_rooms'))
+        elif not flat_check:
+            flash('The Student Flat does not exist', 'danger')
+            return redirect(url_for('flat_rooms'))
+        else:
+            room_num = form.room_num.data
+            rent = form.rent.data
+            capacity = form.capacity.data
+
+            new_room = FlatsRooms(place_num,room_num,rent,flat_num,capacity)
+            db.session.add(new_room)
+            db.session.commit()
+            flash('A new Flat bedroom is added', 'success')
+            return redirect(url_for('flat_rooms'))
     return render_template('flat_rooms.html', form=form)
 
 @app.route("/leases", methods=["POST", "GET"])
@@ -447,6 +603,11 @@ def staff_page():
 def edit_staff():
     form = EditStaffForm()
     return render_template('edit_staff.html', form=form)
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    session['admin'] = None
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     db.create_all()
