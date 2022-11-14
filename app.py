@@ -131,6 +131,15 @@ class HallRes(db.Model):
     staff = db.relationship('Staffs', back_populates='hallres')
     hallrooms = db.relationship('HallRooms', back_populates='hallnum')
 
+    def __init__(self,hall_num,hall_name,hall_address,hall_phone,hall_manager,staff_num,capacity):
+        self.hall_num = hall_num
+        self.hall_name = hall_name
+        self.hall_address = hall_address
+        self.hall_phone = hall_phone
+        self.hall_manager = hall_manager
+        self.staff_num = staff_num
+        self.capacity = capacity
+
 class HallRooms(db.Model):
     __tablename__ = 'hall_rooms'
     place_num = db.Column(db.Integer, primary_key=True) # identifies each room
@@ -141,12 +150,25 @@ class HallRooms(db.Model):
     capacity = db.Column(db.Integer, nullable=False)    # only 1 spot in the room
     hallnum = db.relationship('HallRes', back_populates='hallrooms')
 
+    def __init__(self,place_num,room_num,monthly_rent,hall_name,hall_num,capacity):
+        self.place_num = place_num
+        self.room_num = room_num
+        self.monthly_rent = monthly_rent
+        self.hall_name = hall_name
+        self.hall_num = hall_num
+        self.capacity = capacity
+
 class StuFlats(db.Model):
     __tablename__ = 'stu_flats'
     flat_num = db.Column(db.Integer, primary_key=True)
     flat_address = db.Column(db.String(50), nullable=False)
     avail_room = db.Column(db.Integer, nullable=False)  # number of single bedrooms available
     flatrooms = db.relationship('FlatsRooms', back_populates='flatnum')
+
+    def __init__(self,flat_num,flat_address,avail_room):
+        self.flat_num = flat_num
+        self.flat_address = flat_address
+        self.avail_room = avail_room
 
 class FlatsRooms(db.Model):
     __tablename__ = 'flats_rooms'
@@ -157,6 +179,12 @@ class FlatsRooms(db.Model):
     capacity = db.Column(db.Integer, nullable=False)    # number of spots in the bedroom (3-5)
     flatnum = db.relationship('StuFlats', back_populates='flatrooms')
 
+    def __init__(self,place_num,room_num,monthly_rent,flat_num,capacity):
+        self.place_num = place_num
+        self.room_num = room_num
+        self.monthly_rent = monthly_rent
+        self.flat_num = flat_num
+        self.capacity = capacity
 
 # Create the forms
 class LoginForm(FlaskForm):
@@ -205,8 +233,8 @@ class HallResForm(FlaskForm):
     submit = SubmitField('Add Hall')
 
 class HallRoomsForm(FlaskForm):
-    place_num = IntegerField('Place Number', validators=[InputRequired(), NumberRange(min=1, max=99)])
-    room_num = IntegerField('Room Number', validators=[InputRequired(), NumberRange(min=1, max=99)])
+    place_num = IntegerField('Place Number', validators=[InputRequired(), NumberRange(min=101, max=199)])
+    room_num = IntegerField('Room Number', validators=[InputRequired(), NumberRange(min=101, max=199)])
     rent = FloatField('Monthly Rent $', validators=[InputRequired()])
     hall_name = StringField('Hall Name', validators=[InputRequired(), Length(min=2, max=25)])
     hall_num = IntegerField('Hall Number', validators=[InputRequired(), NumberRange(min=1, max=10)])
@@ -219,8 +247,8 @@ class StuFlatsForm(FlaskForm):
     submit = SubmitField('Add Flat')
 
 class FlatRoomsForm(FlaskForm):
-    place_num = IntegerField('Place Number', validators=[InputRequired(), NumberRange(min=1, max=30)])
-    room_num = IntegerField('Bedroom Number', validators=[InputRequired(), NumberRange(min=1, max=30)])
+    place_num = IntegerField('Place Number', validators=[InputRequired(), NumberRange(min=1001, max=1030)])
+    room_num = IntegerField('Bedroom Number', validators=[InputRequired(), NumberRange(min=1001, max=1030)])
     rent = FloatField('Monthly Rent $', validators=[InputRequired()])
     flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=10)])
     capacity = IntegerField('Number Of Beds', validators=[InputRequired(), NumberRange(min=3, max=5)])
@@ -489,12 +517,19 @@ def hall_res():
             manager = form.manager.data
             capacity = form.capacity.data
 
-            new_hall = HallRes(hall_num,hall_name,address,phone,manager,staff_num,capacity)
+            new_hall = HallRes(hall_num,hall_name,address,str(phone),manager,staff_num,capacity)
             db.session.add(new_hall)
             db.session.commit()
-            flash('The Hall ' + hall_name + ' is added', 'success')
+            flash('The ' + hall_name + ' Hall is added', 'success')
             return redirect(url_for('hall_res'))
     return render_template('hall_res.html', form=form)
+
+@app.route("/hall_list", methods=["POST", "GET"])
+def hall_list():
+    if session['admin'] is None:
+        abort(403)
+    halls = HallRes.query.order_by(HallRes.hall_num.desc())
+    return render_template('hall_list.html', halls=halls)
 
 @app.route("/hall_rooms", methods=["POST", "GET"])
 def hall_rooms():
@@ -512,18 +547,29 @@ def hall_rooms():
         elif not hall_check:
             flash('The Residence Hall does not exist', 'danger')
             return redirect(url_for('hall_rooms'))
+        elif hall_check.capacity < 1:
+            flash('The Residence Hall does not have any more rooms', 'danger')
+            return redirect(url_for('hall_rooms'))
         else:
             room_num = form.room_num.data
             rent = form.rent.data
             hall_name = form.hall_name.data
             capacity = 1
 
+            hall_check.capacity = hall_check.capacity - 1
             new_room = HallRooms(place_num,room_num,rent,hall_name,hall_num,capacity)
             db.session.add(new_room)
             db.session.commit()
             flash('A new Hall room is added', 'success')
             return redirect(url_for('hall_rooms'))
     return render_template('hall_rooms.html', form=form)
+
+@app.route("/hroom_list", methods=["POST", "GET"])
+def hroom_list():
+    if session['admin'] is None:
+        abort(403)
+    one_rooms = HallRooms.query.filter_by(hall_num=1).order_by(HallRooms.place_num.desc())
+    return render_template('hroom_list.html', one_rooms=one_rooms)
 
 @app.route("/stu_flats", methods=["POST", "GET"])
 def stu_flats():
@@ -547,6 +593,13 @@ def stu_flats():
             return redirect(url_for('stu_flats'))
     return render_template('stu_flats.html', form=form)
 
+@app.route("/flat_list", methods=["POST", "GET"])
+def flat_list():
+    if session['admin'] is None:
+        abort(403)
+    flats = StuFlats.query.order_by(StuFlats.flat_num.desc())
+    return render_template('flat_list.html', flats=flats)
+
 @app.route("/flat_rooms", methods=["POST", "GET"])
 def flat_rooms():
     if session['admin'] is None:
@@ -563,17 +616,28 @@ def flat_rooms():
         elif not flat_check:
             flash('The Student Flat does not exist', 'danger')
             return redirect(url_for('flat_rooms'))
+        elif flat_check.avail_room < 1:
+            flash('The Student Flat does not have any more bedrooms', 'danger')
+            return redirect(url_for('flat_rooms'))
         else:
             room_num = form.room_num.data
             rent = form.rent.data
             capacity = form.capacity.data
 
+            flat_check.avail_room = flat_check.avail_room - 1
             new_room = FlatsRooms(place_num,room_num,rent,flat_num,capacity)
             db.session.add(new_room)
             db.session.commit()
             flash('A new Flat bedroom is added', 'success')
             return redirect(url_for('flat_rooms'))
     return render_template('flat_rooms.html', form=form)
+
+@app.route("/froom_list", methods=["POST", "GET"])
+def froom_list():
+    if session['admin'] is None:
+        abort(403)
+    one_rooms = FlatsRooms.query.filter_by(flat_num=1).order_by(FlatsRooms.place_num.desc())
+    return render_template('froom_list.html', one_rooms=one_rooms)
 
 @app.route("/leases", methods=["POST", "GET"])
 def leases():
