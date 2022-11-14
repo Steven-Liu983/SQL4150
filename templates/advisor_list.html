@@ -23,10 +23,30 @@
       <a href="{{url_for('staff_list')}}">Staff List</a>
     </div>
   </div>
-  <a href="{{url_for('hall_res')}}"><i class="icon-building"></i> Residence Halls</a>
-  <a href="{{url_for('hall_rooms')}}"><i class="icon-columns"></i> Hall Rooms</a>
-  <a href="{{url_for('stu_flats')}}"><i class="icon-home"></i> Student Flats</a>
-  <a href="{{url_for('flat_rooms')}}"><i class="icon-th-large"></i> Flat Bedrooms</a>
+  <div class='dropdown'>
+    <a href="{{url_for('hall_res')}}"><i class="icon-building"></i> Residences</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_list')}}">Hall List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('hall_rooms')}}"><i class="icon-columns"></i> Hall Rooms</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hroom_list')}}">Hall Room List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('stu_flats')}}"><i class="icon-home"></i> Student Flats</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('flat_list')}}">Flat List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('flat_rooms')}}"><i class="icon-th-large"></i> Flat Rooms</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('froom_list')}}">Flat Room List</a>
+    </div>
+  </div>
 </div>
 
 <div class="main">

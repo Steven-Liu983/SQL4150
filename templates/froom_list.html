@@ -36,7 +36,7 @@
     </div>
   </div>
   <div class='dropdown'>
-    <a class="active" href="{{url_for('stu_flats')}}"><i class="icon-home"></i> Student Flats</a>
+    <a href="{{url_for('stu_flats')}}"><i class="icon-home"></i> Student Flats</a>
     <div class="dropdown-content">
         <a href="{{url_for('flat_list')}}">Flat List</a>
     </div>
@@ -44,45 +44,40 @@
   <div class='dropdown'>
     <a href="{{url_for('flat_rooms')}}"><i class="icon-th-large"></i> Flat Rooms</a>
     <div class="dropdown-content">
-        <a href="{{url_for('froom_list')}}">Flat Room List</a>
+        <a class="active" href="{{url_for('froom_list')}}">Flat Room List</a>
     </div>
   </div>
 </div>
 
 <div class="main">
   <div class="jumbotron">
-    <h1 align="center">Student Flats</h1>
+    {% if session['admin'] %}
+    <h1 align="center">List Of Rooms In The Flats</h1>
     <br>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{category}}" role="alert">
-            {{ message }}
-          </div>
+    <h5>Flat 1</h5>
+    <table class="tables">
+        <thead>
+        <tr>
+          <th>Place Number</th>
+          <th>Room Number</th>
+          <th>Monthly Rent</th>
+          <th>Capacity</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for one_room in one_rooms %}
+        <tr>
+          <td>{{one_room.place_num}}</td>
+          <td>{{one_room.room_num}}</td>
+          <td>${{ "{:.2f}".format(one_room.monthly_rent) }}</td>
+          <td>{{one_room.capacity}}</td>
+        </tr>
         {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    <form method="POST">
-      {{ form.hidden_tag()}}
-      <div class="form-row">
-        <div class="form-group col-md-6">
-            <strong>{{ form.flat_num.label }}</strong>
-            {{ form.flat_num(class="form-control") }}
-        </div>
-        <div class="form-group col-md-6">
-            <strong>{{ form.avail_room.label }}</strong>
-            {{ form.avail_room(class="form-control") }}
-        </div>
-      </div>
-      <div class="form-group">
-        <strong>
-          {{ form.address.label }}
-        </strong>
-        {{ form.address(class="form-control") }}
-      </div>
-      {{ form.submit(class="btn btn-primary") }}
-    </form>
+        </tbody>
+    </table>
+    {% else %}
+      <a href="{{ url_for('login') }}">Login</a>
+    {% endif %}
   </div>
 </div>
 
