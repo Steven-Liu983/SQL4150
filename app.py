@@ -48,6 +48,8 @@ class Students(db.Model):
     major = db.Column(db.String(20), nullable=False)
     advisor_id = db.Column(db.Integer, ForeignKey('advisor.advisor_id'), nullable=False)    # many-to-one relationship
     advisor = db.relationship('Advisors', back_populates='student')
+    lease_hall = db.relationship('LeasesHalls', back_populates='student')
+    lease_flat = db.relationship('LeasesFlats', back_populates='student')
 
     def __init__(self,grade_num,fname,lname,address,city,province,postcode,dob,gender,category,nationality,special_needs,comments,status,major,advisor_id):
         self.grade_num = grade_num
@@ -130,6 +132,7 @@ class HallRes(db.Model):
     capacity = db.Column(db.Integer, nullable=False)    # number of rooms in the hall
     staff = db.relationship('Staffs', back_populates='hallres')
     hallrooms = db.relationship('HallRooms', back_populates='hallnum')
+    lease_hall = db.relationship('LeasesHalls', back_populates='hallnum')
 
     def __init__(self,hall_num,hall_name,hall_address,hall_phone,hall_manager,staff_num,capacity):
         self.hall_num = hall_num
@@ -149,6 +152,7 @@ class HallRooms(db.Model):
     hall_num = db.Column(db.Integer, ForeignKey('hall_res.hall_num'), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)    # only 1 spot in the room
     hallnum = db.relationship('HallRes', back_populates='hallrooms')
+    lease_hall = db.relationship('LeasesHalls', back_populates='hallroom')
 
     def __init__(self,place_num,room_num,monthly_rent,hall_name,hall_num,capacity):
         self.place_num = place_num
@@ -164,6 +168,7 @@ class StuFlats(db.Model):
     flat_address = db.Column(db.String(50), nullable=False)
     avail_room = db.Column(db.Integer, nullable=False)  # number of single bedrooms available
     flatrooms = db.relationship('FlatsRooms', back_populates='flatnum')
+    lease_flat = db.relationship('LeasesFlats', back_populates='flatnum')
 
     def __init__(self,flat_num,flat_address,avail_room):
         self.flat_num = flat_num
@@ -178,6 +183,7 @@ class FlatsRooms(db.Model):
     flat_num = db.Column(db.Integer, ForeignKey('stu_flats.flat_num'), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)    # number of spots in the bedroom (3-5)
     flatnum = db.relationship('StuFlats', back_populates='flatrooms')
+    lease_flat = db.relationship('LeasesFlats', back_populates='flatroom')
 
     def __init__(self,place_num,room_num,monthly_rent,flat_num,capacity):
         self.place_num = place_num
@@ -185,6 +191,55 @@ class FlatsRooms(db.Model):
         self.monthly_rent = monthly_rent
         self.flat_num = flat_num
         self.capacity = capacity
+
+class LeasesHalls(db.Model):
+    __tablename__ = 'leases_halls'
+    lease_num = db.Column(db.Integer, primary_key=True) # each student has one room and one lease
+    semester = db.Column(db.Integer, nullable=False)
+    grade_num = db.Column(db.Integer, ForeignKey('student.grade_num'), nullable=False, unique=True)
+    place_num = db.Column(db.Integer, ForeignKey('hall_rooms.place_num'), nullable=False, unique=True)
+    room_num = db.Column(db.Integer, nullable=False)
+    hall_num = db.Column(db.Integer, ForeignKey('hall_res.hall_num'), nullable=False)
+    lease_start = db.Column(db.Date, nullable=False)
+    lease_end = db.Column(db.Date, nullable=True)
+    student = db.relationship('Students', back_populates='lease_hall')
+    hallroom = db.relationship('HallRooms', back_populates='lease_hall')
+    hallnum = db.relationship('HallRes', back_populates='lease_hall')
+
+    def __init__(self,lease_num,semester,grade_num,place_num,room_num,hall_num,lease_start,lease_end):
+        self.lease_num = lease_num
+        self.semester = semester
+        self.grade_num = grade_num
+        self.place_num = place_num
+        self.room_num = room_num
+        self.hall_num = hall_num
+        self.lease_start = lease_start
+        self.lease_end = lease_end
+
+class LeasesFlats(db.Model):
+    __tablename__ = 'leases_flats'
+    lease_num = db.Column(db.Integer, primary_key=True) # a bedroom can have up to 5 students and leases
+    semester = db.Column(db.Integer, nullable=False)
+    grade_num = db.Column(db.Integer, ForeignKey('student.grade_num'), nullable=False, unique=True) # each student has 1 lease
+    place_num = db.Column(db.Integer, ForeignKey('flats_rooms.place_num'), nullable=False)
+    room_num = db.Column(db.Integer, nullable=False)
+    flat_num = db.Column(db.Integer, ForeignKey('stu_flats.flat_num'), nullable=False)
+    lease_start = db.Column(db.Date, nullable=False)
+    lease_end = db.Column(db.Date, nullable=True)
+    student = db.relationship('Students', back_populates='lease_flat')
+    flatroom = db.relationship('FlatsRooms', back_populates='lease_flat')
+    flatnum = db.relationship('StuFlats', back_populates='lease_flat')
+
+    def __init__(self,lease_num,semester,grade_num,place_num,room_num,flat_num,lease_start,lease_end):
+        self.lease_num = lease_num
+        self.semester = semester
+        self.grade_num = grade_num
+        self.place_num = place_num
+        self.room_num = room_num
+        self.flat_num = flat_num
+        self.lease_start = lease_start
+        self.lease_end = lease_end
+
 
 # Create the forms
 class LoginForm(FlaskForm):
@@ -223,7 +278,7 @@ class AdvisorForm(FlaskForm):
     submit = SubmitField('Add Advisor')
 
 class HallResForm(FlaskForm):
-    hall_num = IntegerField('Hall Number', validators=[InputRequired(), NumberRange(min=1, max=10)])
+    hall_num = IntegerField('Hall Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     hall_name = StringField('Hall Name', validators=[InputRequired(), Length(min=2, max=25)])
     address = StringField('Address', validators=[InputRequired(), Length(min=2, max=50)])
     phone = IntegerField('Telephone Number', validators=[InputRequired()])
@@ -237,11 +292,11 @@ class HallRoomsForm(FlaskForm):
     room_num = IntegerField('Room Number', validators=[InputRequired(), NumberRange(min=101, max=199)])
     rent = FloatField('Monthly Rent $', validators=[InputRequired()])
     hall_name = StringField('Hall Name', validators=[InputRequired(), Length(min=2, max=25)])
-    hall_num = IntegerField('Hall Number', validators=[InputRequired(), NumberRange(min=1, max=10)])
+    hall_num = IntegerField('Hall Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     submit = SubmitField('Add Room')
 
 class StuFlatsForm(FlaskForm):
-    flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=10)])
+    flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     address = StringField('Address', validators=[InputRequired(), Length(min=2, max=50)])
     avail_room = IntegerField('Available Bedrooms', validators=[InputRequired(), NumberRange(min=1, max=30)])
     submit = SubmitField('Add Flat')
@@ -250,17 +305,17 @@ class FlatRoomsForm(FlaskForm):
     place_num = IntegerField('Place Number', validators=[InputRequired(), NumberRange(min=1001, max=1030)])
     room_num = IntegerField('Bedroom Number', validators=[InputRequired(), NumberRange(min=1001, max=1030)])
     rent = FloatField('Monthly Rent $', validators=[InputRequired()])
-    flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=10)])
+    flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     capacity = IntegerField('Number Of Beds', validators=[InputRequired(), NumberRange(min=3, max=5)])
     submit = SubmitField('Add Bedroom')
 
 class LeasesForm(FlaskForm):
-    lease_num = IntegerField('Lease Number')
-    semester = IntegerField('Number of Semesters')
-    grade_num = IntegerField('Grade 12 Number')
-    place_num = IntegerField('Place Number')
-    room_num = IntegerField('Room Number')
-    build_num = IntegerField('Hall/Flat Number')
+    lease_num = IntegerField('Lease Number', validators=[InputRequired()])    # build_num + place_num
+    semester = IntegerField('Number of Semesters', validators=[InputRequired(), NumberRange(min=1, max=3)])
+    grade_num = IntegerField('Grade 12 Number', validators=[InputRequired(), NumberRange(min=10000000, max=99999999)])
+    place_num = IntegerField('Place Number', validators=[InputRequired()])
+    room_num = IntegerField('Room Number', validators=[InputRequired()])
+    build_num = IntegerField('Hall/Flat Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     hostel = SelectField('Select Hostel', choices=['Residence Hall', 'Student Flats'])
     lease_start = DateTimeLocalField('Start Date', format='%Y-%m-%d')
     lease_end = DateTimeLocalField('End Date', format='%Y-%m-%d')
@@ -641,7 +696,14 @@ def froom_list():
 
 @app.route("/leases", methods=["POST", "GET"])
 def leases():
+    if session['admin'] is None:
+        abort(403)
     form = LeasesForm()
+    '''
+    if form.validate_on_submit():
+        hostel = form.hostel.data
+        if hostel == "Residence Hall":
+    '''
     return render_template('leases.html', form=form)
 
 @app.route("/invoices", methods=["POST", "GET"])
