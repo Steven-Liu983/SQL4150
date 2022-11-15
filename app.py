@@ -699,11 +699,72 @@ def leases():
     if session['admin'] is None:
         abort(403)
     form = LeasesForm()
-    '''
     if form.validate_on_submit():
+        grade_num = form.grade_num.data
         hostel = form.hostel.data
-        if hostel == "Residence Hall":
-    '''
+        lease_num = form.lease_num.data
+        place_num = form.place_num.data
+        build_num = form.build_num.data
+        semester = form.semester.data
+        room_num = form.room_num.data
+        lease_start = form.lease_start.data
+        lease_end = form.lease_end.data
+        student_check = Students.query.filter_by(grade_num=grade_num).first()   # check the foreign key
+        if not student_check:
+            flash('No available information on the student', 'danger')
+            return redirect(url_for('leases'))
+        elif student_check.status == "Placed":
+            flash('The student is already placed', 'danger')
+            return redirect(url_for('leases'))
+        else:
+            if hostel == "Residence Hall":
+                lease_check = LeasesHalls.query.filter_by(lease_num=lease_num).first()  # check the primary key
+                hall_check = HallRes.query.filter_by(hall_num=build_num).first()
+                place_check = HallRooms.query.filter_by(place_num=place_num).first()
+                if lease_check:
+                    flash('The lease is already added', 'danger')
+                    return redirect(url_for('leases'))
+                elif not hall_check:
+                    flash('The hall does not exist', 'danger')
+                    return redirect(url_for('leases'))
+                elif not place_check:
+                    flash('The room does not exist', 'danger')
+                    return redirect(url_for('leases'))
+                elif place_check.capacity < 1:
+                    flash('The room is full', 'danger')
+                    return redirect(url_for('leases'))
+                else:
+                    student_check.status = "Placed"
+                    place_check.capacity = place_check.capacity - 1
+                    new_lease = LeasesHalls(lease_num, semester, grade_num, place_num, room_num, build_num, lease_start, lease_end)
+                    db.session.add(new_lease)
+                    db.session.commit()
+                    flash('A new lease in the Residence Hall room is added for the student', 'success')
+                    return redirect(url_for('leases'))
+            elif hostel == "Student Flats":
+                lease_check = LeasesFlats.query.filter_by(lease_num=lease_num).first()  # check the primary key
+                flat_check = StuFlats.query.filter_by(flat_num=build_num).first()
+                place_check = FlatsRooms.query.filter_by(place_num=place_num).first()
+                if lease_check:
+                    flash('The lease is already added', 'danger')
+                    return redirect(url_for('leases'))
+                elif not flat_check:
+                    flash('The flat does not exist', 'danger')
+                    return redirect(url_for('leases'))
+                elif not place_check:
+                    flash('The bedroom does not exist', 'danger')
+                    return redirect(url_for('leases'))
+                elif place_check.capacity < 1:
+                    flash('The bedroom is full', 'danger')
+                    return redirect(url_for('leases'))
+                else:
+                    student_check.status = "Placed"
+                    place_check.capacity = place_check.capacity - 1
+                    new_lease = LeasesFlats(lease_num, semester, grade_num, place_num, room_num, build_num, lease_start, lease_end)
+                    db.session.add(new_lease)
+                    db.session.commit()
+                    flash('A new lease in the Student Flat room is added for the student', 'success')
+                    return redirect(url_for('leases'))
     return render_template('leases.html', form=form)
 
 @app.route("/invoices", methods=["POST", "GET"])
