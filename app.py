@@ -72,9 +72,6 @@ class Students(db.Model):
 class Advisors(db.Model):
     __tablename__ = 'advisor'
     advisor_id = db.Column(db.Integer, primary_key=True)
-    fname = db.Column(db.String(25), nullable=False)
-    lname = db.Column(db.String(25), nullable=False)
-    position = db.Column(db.String(25), nullable=False)
     department = db.Column(db.String(25), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
     room_num = db.Column(db.Integer, nullable=False)
@@ -82,11 +79,8 @@ class Advisors(db.Model):
     student = db.relationship('Students', back_populates='advisor')
     staff = db.relationship('Staffs', back_populates='advisor')
     
-    def __init__(self,advisor_id,fname,lname,position,department,phone,room_num,staff_num):
+    def __init__(self,advisor_id,department,phone,room_num,staff_num):
         self.advisor_id = advisor_id
-        self.fname = fname
-        self.lname = lname
-        self.position = position
         self.department = department
         self.phone = phone
         self.room_num = room_num
@@ -127,19 +121,17 @@ class HallRes(db.Model):
     hall_name = db.Column(db.String(25), nullable=False)
     hall_address = db.Column(db.String(50), nullable=False)
     hall_phone = db.Column(db.String(20), nullable=False)
-    hall_manager = db.Column(db.String(25), nullable=False)
     staff_num = db.Column(db.Integer, ForeignKey('staff.staff_num'), nullable=False, unique=True)
     capacity = db.Column(db.Integer, nullable=False)    # number of rooms in the hall
     staff = db.relationship('Staffs', back_populates='hallres')
     hallrooms = db.relationship('HallRooms', back_populates='hallnum')
     lease_hall = db.relationship('LeasesHalls', back_populates='hallnum')
 
-    def __init__(self,hall_num,hall_name,hall_address,hall_phone,hall_manager,staff_num,capacity):
+    def __init__(self,hall_num,hall_name,hall_address,hall_phone,staff_num,capacity):
         self.hall_num = hall_num
         self.hall_name = hall_name
         self.hall_address = hall_address
         self.hall_phone = hall_phone
-        self.hall_manager = hall_manager
         self.staff_num = staff_num
         self.capacity = capacity
 
@@ -148,17 +140,15 @@ class HallRooms(db.Model):
     place_num = db.Column(db.Integer, primary_key=True) # identifies each room
     room_num = db.Column(db.Integer, nullable=False)    # each room has 1 student
     monthly_rent = db.Column(db.Float, nullable=False)
-    hall_name = db.Column(db.String(25), nullable=False)
     hall_num = db.Column(db.Integer, ForeignKey('hall_res.hall_num'), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)    # only 1 spot in the room
     hallnum = db.relationship('HallRes', back_populates='hallrooms')
     lease_hall = db.relationship('LeasesHalls', back_populates='hallroom')
 
-    def __init__(self,place_num,room_num,monthly_rent,hall_name,hall_num,capacity):
+    def __init__(self,place_num,room_num,monthly_rent,hall_num,capacity):
         self.place_num = place_num
         self.room_num = room_num
         self.monthly_rent = monthly_rent
-        self.hall_name = hall_name
         self.hall_num = hall_num
         self.capacity = capacity
 
@@ -198,20 +188,19 @@ class LeasesHalls(db.Model):
     semester = db.Column(db.Integer, nullable=False)
     grade_num = db.Column(db.Integer, ForeignKey('student.grade_num'), nullable=False, unique=True)
     place_num = db.Column(db.Integer, ForeignKey('hall_rooms.place_num'), nullable=False, unique=True)
-    room_num = db.Column(db.Integer, nullable=False)
     hall_num = db.Column(db.Integer, ForeignKey('hall_res.hall_num'), nullable=False)
     lease_start = db.Column(db.Date, nullable=False)
     lease_end = db.Column(db.Date, nullable=True)
     student = db.relationship('Students', back_populates='lease_hall')
     hallroom = db.relationship('HallRooms', back_populates='lease_hall')
     hallnum = db.relationship('HallRes', back_populates='lease_hall')
+    invoice_hall = db.relationship('InvoicesHalls', back_populates='lease_hall')
 
-    def __init__(self,lease_num,semester,grade_num,place_num,room_num,hall_num,lease_start,lease_end):
+    def __init__(self,lease_num,semester,grade_num,place_num,hall_num,lease_start,lease_end):
         self.lease_num = lease_num
         self.semester = semester
         self.grade_num = grade_num
         self.place_num = place_num
-        self.room_num = room_num
         self.hall_num = hall_num
         self.lease_start = lease_start
         self.lease_end = lease_end
@@ -222,24 +211,66 @@ class LeasesFlats(db.Model):
     semester = db.Column(db.Integer, nullable=False)
     grade_num = db.Column(db.Integer, ForeignKey('student.grade_num'), nullable=False, unique=True) # each student has 1 lease
     place_num = db.Column(db.Integer, ForeignKey('flats_rooms.place_num'), nullable=False)
-    room_num = db.Column(db.Integer, nullable=False)
     flat_num = db.Column(db.Integer, ForeignKey('stu_flats.flat_num'), nullable=False)
     lease_start = db.Column(db.Date, nullable=False)
     lease_end = db.Column(db.Date, nullable=True)
     student = db.relationship('Students', back_populates='lease_flat')
     flatroom = db.relationship('FlatsRooms', back_populates='lease_flat')
     flatnum = db.relationship('StuFlats', back_populates='lease_flat')
+    invoice_flat = db.relationship('InvoicesFlats', back_populates='lease_flat')
 
-    def __init__(self,lease_num,semester,grade_num,place_num,room_num,flat_num,lease_start,lease_end):
+    def __init__(self,lease_num,semester,grade_num,place_num,flat_num,lease_start,lease_end):
         self.lease_num = lease_num
         self.semester = semester
         self.grade_num = grade_num
         self.place_num = place_num
-        self.room_num = room_num
         self.flat_num = flat_num
         self.lease_start = lease_start
         self.lease_end = lease_end
 
+class InvoicesHalls(db.Model):
+    __tablename__ = 'invoices_halls'
+    invoice_num = db.Column(db.Integer, primary_key=True)   # each lease has an invoice
+    lease_num = db.Column(db.Integer, ForeignKey('leases_halls.lease_num'), nullable=False, unique=True)
+    payment_due = db.Column(db.Float, nullable=False)
+    payment_paid = db.Column(db.Float, nullable=False)
+    payment_date = db.Column(db.Date, nullable=False)
+    payment_method = db.Column(db.String(30), nullable=False)
+    first_reminder = db.Column(db.Date, nullable=True)
+    second_reminder = db.Column(db.Date, nullable=True)
+    lease_hall = db.relationship('LeasesHalls', back_populates='invoice_hall')
+
+    def __init__(self,invoice_num,lease_num,payment_due,payment_paid,payment_date,payment_method,first_reminder,second_reminder):
+        self.invoice_num = invoice_num
+        self.lease_num = lease_num
+        self.payment_due = payment_due
+        self.payment_paid = payment_paid
+        self.payment_date = payment_date
+        self.payment_method = payment_method
+        self.first_reminder = first_reminder
+        self.second_reminder = second_reminder
+
+class InvoicesFlats(db.Model):
+    __tablename__ = 'invoices_flats'
+    invoice_num = db.Column(db.Integer, primary_key=True)   # each lease has an invoice
+    lease_num = db.Column(db.Integer, ForeignKey('leases_flats.lease_num'), nullable=False, unique=True)
+    payment_due = db.Column(db.Float, nullable=False)
+    payment_paid = db.Column(db.Float, nullable=False)
+    payment_date = db.Column(db.Date, nullable=False)
+    payment_method = db.Column(db.String(30), nullable=False)
+    first_reminder = db.Column(db.Date, nullable=True)
+    second_reminder = db.Column(db.Date, nullable=True)
+    lease_flat = db.relationship('LeasesFlats', back_populates='invoice_flat')
+
+    def __init__(self,invoice_num,lease_num,payment_due,payment_paid,payment_date,payment_method,first_reminder,second_reminder):
+        self.invoice_num = invoice_num
+        self.lease_num = lease_num
+        self.payment_due = payment_due
+        self.payment_paid = payment_paid
+        self.payment_date = payment_date
+        self.payment_method = payment_method
+        self.first_reminder = first_reminder
+        self.second_reminder = second_reminder
 
 # Create the forms
 class LoginForm(FlaskForm):
@@ -261,16 +292,13 @@ class StudentForm(FlaskForm):
     nationality = StringField('Nationality', validators=[InputRequired(), Length(min=2, max=25)])
     special_needs = TextAreaField('Special Needs')
     comments = TextAreaField('Comments')
-    status = SelectField('Status', choices=['Placed', 'Waiting'])
+    status = SelectField('Status', choices=['Waiting', 'Placed'])
     major = StringField('Major', validators=[InputRequired(), Length(min=2, max=20)])
     advisor_id = IntegerField('Advisor ID', validators=[InputRequired(), NumberRange(min=10000, max=99999)])
     submit = SubmitField('Submit')
 
 class AdvisorForm(FlaskForm):
     advisor_id = IntegerField('Advisor ID', validators=[InputRequired(), NumberRange(min=10000, max=99999)])
-    fname = StringField('First Name', validators=[InputRequired(), Length(min=2, max=25)])
-    lname = StringField('Last Name', validators=[InputRequired(), Length(min=2, max=25)])
-    position = SelectField('Position', choices=['Counsellor', 'Mentor', 'Guidance'])
     department = SelectField('Department', choices=['Arts', 'Economics', 'Education', 'Engineering', 'Humanities', 'Law', 'Music', 'Philosophy', 'Science'])
     phone = IntegerField('Internal Telephone Number', validators=[InputRequired()])
     room_num = IntegerField('Room Number', validators=[InputRequired(), NumberRange(min=100, max=9999)])
@@ -282,8 +310,7 @@ class HallResForm(FlaskForm):
     hall_name = StringField('Hall Name', validators=[InputRequired(), Length(min=2, max=25)])
     address = StringField('Address', validators=[InputRequired(), Length(min=2, max=50)])
     phone = IntegerField('Telephone Number', validators=[InputRequired()])
-    manager = StringField('Manager', validators=[InputRequired(), Length(min=2, max=25)])
-    staff_num = IntegerField('Staff Number', validators=[InputRequired(), NumberRange(min=100000, max=999999)])
+    staff_num = IntegerField('Staff Number (Manager)', validators=[InputRequired(), NumberRange(min=100000, max=999999)])
     capacity = IntegerField('Capacity', validators=[InputRequired(), NumberRange(min=1, max=99)])
     submit = SubmitField('Add Hall')
 
@@ -291,7 +318,6 @@ class HallRoomsForm(FlaskForm):
     place_num = IntegerField('Place Number', validators=[InputRequired(), NumberRange(min=101, max=199)])
     room_num = IntegerField('Room Number', validators=[InputRequired(), NumberRange(min=101, max=199)])
     rent = FloatField('Monthly Rent $', validators=[InputRequired()])
-    hall_name = StringField('Hall Name', validators=[InputRequired(), Length(min=2, max=25)])
     hall_num = IntegerField('Hall Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     submit = SubmitField('Add Room')
 
@@ -314,7 +340,6 @@ class LeasesForm(FlaskForm):
     semester = IntegerField('Number of Semesters', validators=[InputRequired(), NumberRange(min=1, max=3)])
     grade_num = IntegerField('Grade 12 Number', validators=[InputRequired(), NumberRange(min=10000000, max=99999999)])
     place_num = IntegerField('Place Number', validators=[InputRequired()])
-    room_num = IntegerField('Room Number', validators=[InputRequired()])
     build_num = IntegerField('Hall/Flat Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     hostel = SelectField('Select Hostel', choices=['Residence Hall', 'Student Flats'])
     lease_start = DateTimeLocalField('Start Date', format='%Y-%m-%d')
@@ -322,31 +347,24 @@ class LeasesForm(FlaskForm):
     submit = SubmitField('Add Lease')
 
 class InvoicesForm(FlaskForm):
-    invoice_num = IntegerField('Invoice Number')
-    lease_num = IntegerField('Lease Number')
-    semester = IntegerField('Number of Semesters')
-    payment_due = FloatField('Payment Due $')
-    grade_num = IntegerField('Grade 12 Number')
-    place_num = IntegerField('Place Number')
-    room_num = IntegerField('Room Number')
-    build_num = IntegerField('Hall/Flat Number')
+    invoice_num = IntegerField('Invoice Number', validators=[InputRequired()])
     hostel = SelectField('Select Hostel', choices=['Residence Hall', 'Student Flats'])
-    payment_paid = FloatField('Payment Paid $')
+    lease_num = IntegerField('Lease Number', validators=[InputRequired()])
+    payment_due = FloatField('Payment Due $', validators=[InputRequired()])
+    payment_paid = FloatField('Payment Paid $', validators=[InputRequired()])
     payment_date = DateTimeLocalField('Payment Date', format='%Y-%m-%d')
-    payment_method = SelectField('Payment Method', choices=['Cheque', 'Cash'])
+    payment_method = SelectField('Payment Method', choices=['Cheque', 'Cash', 'Debit Card', 'Onlline Banking', 'Money Order'])
     first_reminder = DateTimeLocalField('First Reminder Date', format='%Y-%m-%d')
-    second_reminder = DateTimeLocalField('Second Reminder Date', format='%Y-%m-%d')
+    second_reminder = DateTimeLocalField('Second Reminder Date', format='%Y-%m-%d') # payment due date
     submit = SubmitField('Add Invoice')
 
 class InspectForm(FlaskForm):
-    inspect_num = IntegerField('Inspection Number')
-    staff_num = IntegerField('Staff Number')
-    fname = StringField('First Name')
-    lname = StringField('Last Name')
+    inspect_num = IntegerField('Inspection Number', validators=[InputRequired(), NumberRange(min=10, max=999)])
+    staff_num = IntegerField('Staff Number', validators=[InputRequired(), NumberRange(min=100000, max=999999)])
     date = DateTimeLocalField('Inspection Date', format='%Y-%m-%d')
-    satisfy = StringField('Satisfactory')
+    satisfy = SelectField('Satisfactory', choices=['Yes', 'No'])
     comments = TextAreaField('Comments')
-    flat_num = IntegerField('Flat Number')
+    flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     submit = SubmitField('Add Inspection')
 
 class StaffForm(FlaskForm):
@@ -483,21 +501,21 @@ def advisors():
         elif not staff_check:
             flash('The staff does not exist', 'danger')
             return redirect(url_for('advisors'))
+        elif staff_check.position != "Advisor":
+            flash('The staff is not an advisor', 'danger')
+            return redirect(url_for('advisors'))
         elif staff_added:
             flash('The staff is already added as an advisor', 'danger')
             return redirect(url_for('advisors'))
         else:
-            fname = form.fname.data
-            lname= form.lname.data
-            position = form.position.data
             department = form.department.data
             phone = form.phone.data
             room_num = form.room_num.data
 
-            new_advisor = Advisors(advisor_id,fname,lname,position,department,str(phone),room_num,staff_num)
+            new_advisor = Advisors(advisor_id,department,str(phone),room_num,staff_num)
             db.session.add(new_advisor)
             db.session.commit()
-            flash(fname + ' ' + lname + ' is added as a new advisor', 'success')
+            flash(staff_check.fname + ' ' + staff_check.lname + ' is added as a new advisor', 'success')
             return redirect(url_for('advisors'))
     return render_template('advisors.html', form=form)
 
@@ -562,6 +580,9 @@ def hall_res():
         elif not staff_check:
             flash('The staff does not exist', 'danger')
             return redirect(url_for('hall_res'))
+        elif staff_check.position != "Hall Manager":
+            flash('The staff is not a Hall Manager', 'danger')
+            return redirect(url_for('hall_res'))
         elif staff_added:
             flash('The staff is already added as a Hall Manager', 'danger')
             return redirect(url_for('hall_res'))
@@ -569,10 +590,9 @@ def hall_res():
             hall_name = form.hall_name.data
             address = form.address.data
             phone = form.phone.data
-            manager = form.manager.data
             capacity = form.capacity.data
 
-            new_hall = HallRes(hall_num,hall_name,address,str(phone),manager,staff_num,capacity)
+            new_hall = HallRes(hall_num,hall_name,address,str(phone),staff_num,capacity)
             db.session.add(new_hall)
             db.session.commit()
             flash('The ' + hall_name + ' Hall is added', 'success')
@@ -608,11 +628,10 @@ def hall_rooms():
         else:
             room_num = form.room_num.data
             rent = form.rent.data
-            hall_name = form.hall_name.data
             capacity = 1
 
             hall_check.capacity = hall_check.capacity - 1
-            new_room = HallRooms(place_num,room_num,rent,hall_name,hall_num,capacity)
+            new_room = HallRooms(place_num,room_num,rent,hall_num,capacity)
             db.session.add(new_room)
             db.session.commit()
             flash('A new Hall room is added', 'success')
@@ -706,7 +725,6 @@ def leases():
         place_num = form.place_num.data
         build_num = form.build_num.data
         semester = form.semester.data
-        room_num = form.room_num.data
         lease_start = form.lease_start.data
         lease_end = form.lease_end.data
         student_check = Students.query.filter_by(grade_num=grade_num).first()   # check the foreign key
@@ -736,7 +754,7 @@ def leases():
                 else:
                     student_check.status = "Placed"
                     place_check.capacity = place_check.capacity - 1
-                    new_lease = LeasesHalls(lease_num, semester, grade_num, place_num, room_num, build_num, lease_start, lease_end)
+                    new_lease = LeasesHalls(lease_num, semester, grade_num, place_num, build_num, lease_start, lease_end)
                     db.session.add(new_lease)
                     db.session.commit()
                     flash('A new lease in the Residence Hall room is added for the student', 'success')
@@ -760,17 +778,95 @@ def leases():
                 else:
                     student_check.status = "Placed"
                     place_check.capacity = place_check.capacity - 1
-                    new_lease = LeasesFlats(lease_num, semester, grade_num, place_num, room_num, build_num, lease_start, lease_end)
+                    new_lease = LeasesFlats(lease_num, semester, grade_num, place_num, build_num, lease_start, lease_end)
                     db.session.add(new_lease)
                     db.session.commit()
                     flash('A new lease in the Student Flat room is added for the student', 'success')
                     return redirect(url_for('leases'))
     return render_template('leases.html', form=form)
 
+@app.route("/hall_leases", methods=["POST", "GET"])
+def hall_leases():
+    if session['admin'] is None:
+        abort(403)
+    one_leases = LeasesHalls.query.filter_by(hall_num=1).order_by(LeasesHalls.lease_num.desc())
+    return render_template('hall_leases.html', one_leases=one_leases)
+
+@app.route("/flat_leases", methods=["POST", "GET"])
+def flat_leases():
+    if session['admin'] is None:
+        abort(403)
+    one_leases = LeasesFlats.query.filter_by(flat_num=1).order_by(LeasesFlats.lease_num.desc())
+    return render_template('flat_leases.html', one_leases=one_leases)
+
 @app.route("/invoices", methods=["POST", "GET"])
 def invoices():
+    if session['admin'] is None:
+        abort(403)
     form = InvoicesForm()
+    if form.validate_on_submit():
+        hostel = form.hostel.data
+        invoice_num = form.invoice_num.data
+        lease_num = form.lease_num.data
+        payment_due = form.payment_due.data
+        payment_paid = form.payment_paid.data
+        payment_date = form.payment_date.data
+        payment_method = form.payment_method.data
+        first_reminder = form.first_reminder.data
+        second_reminder = form.second_reminder.data
+        if hostel == "Residence Hall":
+            invoice_check = InvoicesHalls.query.filter_by(invoice_num=invoice_num).first()    # check the primary key
+            lease_check = LeasesHalls.query.filter_by(lease_num=lease_num).first()  # check the foreign key
+            lease_added = InvoicesHalls.query.filter_by(lease_num=lease_num).first()  # check if the lease is already added
+            if invoice_check:
+                flash('The invoice is already added', 'danger')
+                return redirect(url_for('invoices'))
+            elif not lease_check:
+                flash('The lease does not exist', 'danger')
+                return redirect(url_for('invoices'))
+            elif lease_added:
+                flash('The lease is already added', 'danger')
+                return redirect(url_for('invoices'))
+            else:
+                new_invoice = InvoicesHalls(invoice_num, lease_num, payment_due, payment_paid, payment_date, payment_method, first_reminder, second_reminder)
+                db.session.add(new_invoice)
+                db.session.commit()
+                flash('A new invoice is added for the Residence Hall lease', 'success')
+                return redirect(url_for('invoices'))
+        elif hostel == "Student Flats":
+            invoice_check = InvoicesFlats.query.filter_by(invoice_num=invoice_num).first()    # check the primary key
+            lease_check = LeasesFlats.query.filter_by(lease_num=lease_num).first()  # check the foreign key
+            lease_added = InvoicesFlats.query.filter_by(lease_num=lease_num).first()  # check if the lease is already added
+            if invoice_check:
+                flash('The invoice is already added', 'danger')
+                return redirect(url_for('invoices'))
+            elif not lease_check:
+                flash('The lease does not exist', 'danger')
+                return redirect(url_for('invoices'))
+            elif lease_added:
+                flash('The lease is already added', 'danger')
+                return redirect(url_for('invoices'))
+            else:
+                new_invoice = InvoicesFlats(invoice_num, lease_num, payment_due, payment_paid, payment_date, payment_method, first_reminder, second_reminder)
+                db.session.add(new_invoice)
+                db.session.commit()
+                flash('A new invoice is added for the Student Flat lease', 'success')
+                return redirect(url_for('invoices'))
     return render_template('invoices.html', form=form)
+
+@app.route("/hall_invoices", methods=["POST", "GET"])
+def hall_invoices():
+    if session['admin'] is None:
+        abort(403)
+    invoices = InvoicesHalls.query.order_by(InvoicesHalls.invoice_num.desc())
+    return render_template('hall_invoices.html', invoices=invoices)
+
+@app.route("/flat_invoices", methods=["POST", "GET"])
+def flat_invoices():
+    if session['admin'] is None:
+        abort(403)
+    invoices = InvoicesFlats.query.order_by(InvoicesFlats.invoice_num.desc())
+    return render_template('flat_invoices.html', invoices=invoices)
 
 @app.route("/inspections", methods=["POST", "GET"])
 def inspections():
