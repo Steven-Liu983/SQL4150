@@ -47,7 +47,20 @@
         <a href="{{url_for('froom_list')}}">Flat Room List</a>
     </div>
   </div>
-  <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
+  <div class='dropdown'>
+    <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_leases')}}">Hall Leases</a>
+        <a href="{{url_for('flat_leases')}}">Flat Leases</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('invoices')}}"><i class="icon-credit-card"></i> Invoices</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_invoices')}}">Hall Invoices</a>
+        <a href="{{url_for('flat_invoices')}}">Flat Invoices</a>
+    </div>
+  </div>
 </div>
 
 <div class="main">
@@ -62,7 +75,6 @@
           <th>Place Number</th>
           <th>Room Number</th>
           <th>Monthly Rent</th>
-          <th>Hall Name</th>
           <th>Capacity</th>
         </tr>
         </thead>
@@ -72,7 +84,6 @@
           <td>{{one_room.place_num}}</td>
           <td>{{one_room.room_num}}</td>
           <td>${{ "{:.2f}".format(one_room.monthly_rent) }}</td>
-          <td>{{one_room.hall_name}}</td>
           <td>{{one_room.capacity}}</td>
         </tr>
         {% endfor %}

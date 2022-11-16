@@ -47,7 +47,20 @@
         <a class="active" href="{{url_for('froom_list')}}">Flat Room List</a>
     </div>
   </div>
-  <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
+  <div class='dropdown'>
+    <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_leases')}}">Hall Leases</a>
+        <a href="{{url_for('flat_leases')}}">Flat Leases</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('invoices')}}"><i class="icon-credit-card"></i> Invoices</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_invoices')}}">Hall Invoices</a>
+        <a href="{{url_for('flat_invoices')}}">Flat Invoices</a>
+    </div>
+  </div>
 </div>
 
 <div class="main">

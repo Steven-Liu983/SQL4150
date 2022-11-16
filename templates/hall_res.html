@@ -47,7 +47,20 @@
         <a href="{{url_for('froom_list')}}">Flat Room List</a>
     </div>
   </div>
-  <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
+  <div class='dropdown'>
+    <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_leases')}}">Hall Leases</a>
+        <a href="{{url_for('flat_leases')}}">Flat Leases</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('invoices')}}"><i class="icon-credit-card"></i> Invoices</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_invoices')}}">Hall Invoices</a>
+        <a href="{{url_for('flat_invoices')}}">Flat Invoices</a>
+    </div>
+  </div>
 </div>
 
 <div class="main">
@@ -87,15 +100,11 @@
         {{ form.address(class="form-control") }}
       </div>
       <div class="form-row">
-        <div class="form-group col-md-4">
-            <strong>{{ form.manager.label }}</strong>
-            {{ form.manager(class="form-control") }}
-        </div>
-        <div class="form-group col-md-4">
+        <div class="form-group col-md-6">
             <strong>{{ form.staff_num.label }}</strong>
             {{ form.staff_num(class="form-control") }}
         </div>
-        <div class="form-group col-md-4">
+        <div class="form-group col-md-6">
             <strong>{{ form.capacity.label }}</strong>
             {{ form.capacity(class="form-control") }}
         </div>

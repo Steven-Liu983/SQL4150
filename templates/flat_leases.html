@@ -20,7 +20,7 @@
   <div class='dropdown'>
     <a href="{{url_for('staffs')}}"><i class="icon-user"></i> Staffs</a>
     <div class="dropdown-content">
-      <a class="active" href="{{url_for('staff_list')}}">Staff List</a>
+      <a href="{{url_for('staff_list')}}">Staff List</a>
     </div>
   </div>
   <div class='dropdown'>
@@ -51,7 +51,7 @@
     <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
     <div class="dropdown-content">
         <a href="{{url_for('hall_leases')}}">Hall Leases</a>
-        <a href="{{url_for('flat_leases')}}">Flat Leases</a>
+        <a class="active" href="{{url_for('flat_leases')}}">Flat Leases</a>
     </div>
   </div>
   <div class='dropdown'>
@@ -66,30 +66,29 @@
 <div class="main">
   <div class="jumbotron">
     {% if session['admin'] %}
-    <h1 align="center">List Of Staffs</h1>
+    <h1 align="center">Leases Of Student Flats</h1>
     <br>
+    <h5>Flat 1</h5>
     <table class="tables">
         <thead>
         <tr>
-          <th>Staff Number</th>
-          <th>Name</th>
-          <th>Address</th>
-          <th>Gender</th>
-          <th>Date Of Birth</th>
-          <th>Position</th>
-          <th>Location</th>
+          <th>Lease Number</th>
+          <th>Semester</th>
+          <th>Grade 12 Number</th>
+          <th>Place Number</th>
+          <th>Lease Start</th>
+          <th>Lease End</th>
         </tr>
         </thead>
         <tbody>
-        {% for staff in staffs %}
+        {% for lease in one_leases %}
         <tr>
-          <td>{{staff.staff_num}}</td>
-          <td>{{staff.fname}} {{staff.lname}}</td>
-          <td>{{staff.address}}, {{staff.city}}, {{staff.province}} {{staff.postcode}}</td>
-          <td>{{staff.gender}}</td>
-          <td>{{staff.dob}}</td>
-          <td>{{staff.position}}</td>
-          <td>{{staff.location}}</td>
+          <td>{{lease.lease_num}}</td>
+          <td>{{lease.semester}}</td>
+          <td>{{lease.grade_num}}</td>
+          <td>{{lease.place_num}}</td>
+          <td>{{lease.lease_start}}</td>
+          <td>{{lease.lease_end}}</td>
         </tr>
         {% endfor %}
         </tbody>

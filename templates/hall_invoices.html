@@ -20,7 +20,7 @@
   <div class='dropdown'>
     <a href="{{url_for('staffs')}}"><i class="icon-user"></i> Staffs</a>
     <div class="dropdown-content">
-      <a class="active" href="{{url_for('staff_list')}}">Staff List</a>
+      <a href="{{url_for('staff_list')}}">Staff List</a>
     </div>
   </div>
   <div class='dropdown'>
@@ -57,7 +57,7 @@
   <div class='dropdown'>
     <a href="{{url_for('invoices')}}"><i class="icon-credit-card"></i> Invoices</a>
     <div class="dropdown-content">
-        <a href="{{url_for('hall_invoices')}}">Hall Invoices</a>
+        <a class="active" href="{{url_for('hall_invoices')}}">Hall Invoices</a>
         <a href="{{url_for('flat_invoices')}}">Flat Invoices</a>
     </div>
   </div>
@@ -66,30 +66,32 @@
 <div class="main">
   <div class="jumbotron">
     {% if session['admin'] %}
-    <h1 align="center">List Of Staffs</h1>
+    <h1 align="center">Invoices Of Residence Halls</h1>
     <br>
     <table class="tables">
         <thead>
         <tr>
-          <th>Staff Number</th>
-          <th>Name</th>
-          <th>Address</th>
-          <th>Gender</th>
-          <th>Date Of Birth</th>
-          <th>Position</th>
-          <th>Location</th>
+          <th>Invoice Number</th>
+          <th>Lease Number</th>
+          <th>Payment Due</th>
+          <th>Payment Paid</th>
+          <th>Payment Date</th>
+          <th>Payment Method</th>
+          <th>First Reminder</th>
+          <th>Second Reminder</th>
         </tr>
         </thead>
         <tbody>
-        {% for staff in staffs %}
+        {% for invoice in invoices %}
         <tr>
-          <td>{{staff.staff_num}}</td>
-          <td>{{staff.fname}} {{staff.lname}}</td>
-          <td>{{staff.address}}, {{staff.city}}, {{staff.province}} {{staff.postcode}}</td>
-          <td>{{staff.gender}}</td>
-          <td>{{staff.dob}}</td>
-          <td>{{staff.position}}</td>
-          <td>{{staff.location}}</td>
+          <td>{{invoice.invoice_num}}</td>
+          <td>{{invoice.lease_num}}</td>
+          <td>${{"{:.2f}".format(invoice.payment_due)}}</td>
+          <td>${{"{:.2f}".format(invoice.payment_paid)}}</td>
+          <td>{{invoice.payment_date}}</td>
+          <td>{{invoice.payment_method}}</td>
+          <td>{{invoice.first_reminder}}</td>
+          <td>{{invoice.second_reminder}}</td>
         </tr>
         {% endfor %}
         </tbody>
