@@ -8,7 +8,7 @@
   <div class='dropdown'>
     <a href="{{url_for('students')}}"><i class="icon-user"></i> Students</a>
     <div class="dropdown-content">
-      <a href="{{url_for('student_list')}}">Student List</a>
+      <a class="active" href="{{url_for('student_list')}}">Student List</a>
     </div>
   </div>
   <div class='dropdown'>
@@ -50,7 +50,7 @@
   <div class='dropdown'>
     <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
     <div class="dropdown-content">
-        <a class="active" href="{{url_for('hall_leases')}}">Hall Leases</a>
+        <a href="{{url_for('hall_leases')}}">Hall Leases</a>
         <a href="{{url_for('flat_leases')}}">Flat Leases</a>
     </div>
   </div>
@@ -72,33 +72,61 @@
 <div class="main">
   <div class="jumbotron">
     {% if session['admin'] %}
-    <h1 align="center">Leases Of Residence Halls</h1>
+    <h1 align="center">The Student's Information</h1>
     <br>
-    <table class="tables">
-        <thead>
+    <table class="tablerec">
         <tr>
-          <th>Lease Number</th>
-          <th>Semester(s)</th>
-          <th>Grade 12 Number</th>
-          <th>Place Number</th>
-          <th>Lease Start</th>
-          <th>Lease End</th>
-          <th>Details</th>
+            <td><b>Grade 12 Number</b></td>
+            <td>{{student.grade_num}}</td>
         </tr>
-        </thead>
-        <tbody>
-        {% for lease in leases %}
         <tr>
-          <td>{{lease.lease_num}}</td>
-          <td>{{lease.semester}}</td>
-          <td>{{lease.grade_num}}</td>
-          <td>{{lease.place_num}}</td>
-          <td>{{lease.lease_start}}</td>
-          <td>{{lease.lease_end}}</td>
-          <td><a href="{{ url_for('hall_lease', acc=lease.lease_num) }}">Info <i class="icon-zoom-in"></i></a></td>
+            <td><b>Student's Name</b></td>
+            <td>{{student.fname}} {{student.lname}}</td>
         </tr>
-        {% endfor %}
-        </tbody>
+        <tr>
+            <td><b>Student's Address</b></td>
+            <td>{{student.address}}, {{student.city}}, {{student.province}} {{student.postcode}}</td>
+        </tr>
+        <tr>
+            <td><b>Student's Date Of Birth</b></td>
+            <td>{{student.dob}}</td>
+        </tr>
+        <tr>
+            <td><b>Student's Gender</b></td>
+            <td>{{student.gender}}</td>
+        </tr>
+        <tr>
+            <td><b>Student's Category</b></td>
+            <td>{{student.category}}</td>
+        </tr>
+        <tr>
+            <td><b>Student's Nationality</b></td>
+            <td>{{student.nationality}}</td>
+        </tr>
+        <tr>
+            <td><b>Student's Status</b></td>
+            <td>{{student.status}}</td>
+        </tr>
+        <tr>
+            <td><b>Student's Major</b></td>
+            <td>{{student.major}}</td>
+        </tr>
+        <tr>
+            <td><b>Advisor's Name</b></td>
+            <td>{{staff.fname}} {{staff.lname}}</td>
+        </tr>
+        <tr>
+            <td><b>Advisor ID</b></td>
+            <td>{{student.advisor_id}}</td>
+        </tr>
+        <tr>
+            <td><b>Special Needs</b></td>
+            <td>{{student.special_needs}}</td>
+        </tr>
+        <tr>
+            <td><b>Additional Comments</b></td>
+            <td>{{student.comments}}</td>
+        </tr>
     </table>
     {% else %}
       <a href="{{ url_for('login') }}">Login</a>

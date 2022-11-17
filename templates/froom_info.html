@@ -44,13 +44,13 @@
   <div class='dropdown'>
     <a href="{{url_for('flat_rooms')}}"><i class="icon-th-large"></i> Flat Rooms</a>
     <div class="dropdown-content">
-        <a href="{{url_for('froom_list')}}">Flat Room List</a>
+        <a class="active" href="{{url_for('froom_list')}}">Flat Room List</a>
     </div>
   </div>
   <div class='dropdown'>
     <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
     <div class="dropdown-content">
-        <a class="active" href="{{url_for('hall_leases')}}">Hall Leases</a>
+        <a href="{{url_for('hall_leases')}}">Hall Leases</a>
         <a href="{{url_for('flat_leases')}}">Flat Leases</a>
     </div>
   </div>
@@ -72,33 +72,33 @@
 <div class="main">
   <div class="jumbotron">
     {% if session['admin'] %}
-    <h1 align="center">Leases Of Residence Halls</h1>
+    <h1 align="center">List Of Rooms In The Flats</h1>
     <br>
-    <table class="tables">
-        <thead>
+    <table class="tablerec">
         <tr>
-          <th>Lease Number</th>
-          <th>Semester(s)</th>
-          <th>Grade 12 Number</th>
-          <th>Place Number</th>
-          <th>Lease Start</th>
-          <th>Lease End</th>
-          <th>Details</th>
+            <td><b>Place Number</b></td>
+            <td>{{froom.place_num}}</td>
         </tr>
-        </thead>
-        <tbody>
-        {% for lease in leases %}
         <tr>
-          <td>{{lease.lease_num}}</td>
-          <td>{{lease.semester}}</td>
-          <td>{{lease.grade_num}}</td>
-          <td>{{lease.place_num}}</td>
-          <td>{{lease.lease_start}}</td>
-          <td>{{lease.lease_end}}</td>
-          <td><a href="{{ url_for('hall_lease', acc=lease.lease_num) }}">Info <i class="icon-zoom-in"></i></a></td>
+            <td><b>Room Number</b></td>
+            <td>{{froom.room_num}}</td>
         </tr>
-        {% endfor %}
-        </tbody>
+        <tr>
+            <td><b>Monthly Rent</b></td>
+            <td>${{ "{:.2f}".format(froom.monthly_rent) }}</td>
+        </tr>
+        <tr>
+            <td><b>Room Capacity</b></td>
+            <td>{{froom.capacity}}</td>
+        </tr>
+        <tr>
+            <td><b>Flat Number</b></td>
+            <td>{{froom.flat_num}}</td>
+        </tr>
+        <tr>
+            <td><b>Address</b></td>
+            <td>{{flat.flat_address}}</td>
+        </tr>
     </table>
     {% else %}
       <a href="{{ url_for('login') }}">Login</a>

@@ -83,6 +83,7 @@
           <th>Phone Number</th>
           <th>Staff Number</th>
           <th>Capacity</th>
+          <th>Details</th>
         </tr>
         </thead>
         <tbody>
@@ -94,6 +95,7 @@
           <td>{{hall.hall_phone}}</td>
           <td>{{hall.staff_num}}</td>
           <td>{{hall.capacity}}</td>
+          <td><a href="{{ url_for('hall_info', acc=hall.hall_num) }}">Info <i class="icon-zoom-in"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

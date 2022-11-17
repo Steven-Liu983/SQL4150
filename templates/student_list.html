@@ -82,11 +82,10 @@
           <th>Address</th>
           <th>Date Of Birth</th>
           <th>Gender</th>
-          <th>Category</th>
-          <th>Nationality</th>
           <th>Status</th>
           <th>Major</th>
           <th>Advisor ID</th>
+          <th>Details</th>
         </tr>
         </thead>
         <tbody>
@@ -97,11 +96,10 @@
           <td>{{student.address}}, {{student.city}}, {{student.province}} {{student.postcode}}</td>
           <td>{{student.dob}}</td>
           <td>{{student.gender}}</td>
-          <td>{{student.category}}</td>
-          <td>{{student.nationality}}</td>
           <td>{{student.status}}</td>
           <td>{{student.major}}</td>
           <td>{{student.advisor_id}}</td>
+          <td><a href="{{ url_for('student_info', acc=student.grade_num) }}">Info <i class="icon-zoom-in"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

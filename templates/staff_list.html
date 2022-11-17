@@ -84,6 +84,7 @@
           <th>Date Of Birth</th>
           <th>Position</th>
           <th>Location</th>
+          <th>Details</th>
         </tr>
         </thead>
         <tbody>
@@ -96,6 +97,7 @@
           <td>{{staff.dob}}</td>
           <td>{{staff.position}}</td>
           <td>{{staff.location}}</td>
+          <td><a href="{{ url_for('staff_info', acc=staff.staff_num) }}">Info <i class="icon-zoom-in"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

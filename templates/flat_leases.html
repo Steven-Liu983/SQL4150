@@ -74,20 +74,20 @@
     {% if session['admin'] %}
     <h1 align="center">Leases Of Student Flats</h1>
     <br>
-    <h5>Flat 1</h5>
     <table class="tables">
         <thead>
         <tr>
           <th>Lease Number</th>
-          <th>Semester</th>
+          <th>Semester(s)</th>
           <th>Grade 12 Number</th>
           <th>Place Number</th>
           <th>Lease Start</th>
           <th>Lease End</th>
+          <th>Details</th>
         </tr>
         </thead>
         <tbody>
-        {% for lease in one_leases %}
+        {% for lease in leases %}
         <tr>
           <td>{{lease.lease_num}}</td>
           <td>{{lease.semester}}</td>
@@ -95,6 +95,7 @@
           <td>{{lease.place_num}}</td>
           <td>{{lease.lease_start}}</td>
           <td>{{lease.lease_end}}</td>
+          <td><a href="{{ url_for('flat_lease', acc=lease.lease_num) }}">Info <i class="icon-zoom-in"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

@@ -85,6 +85,7 @@
           <th>Payment Method</th>
           <th>First Reminder</th>
           <th>Second Reminder</th>
+          <th>Details</th>
         </tr>
         </thead>
         <tbody>
@@ -98,6 +99,7 @@
           <td>{{invoice.payment_method}}</td>
           <td>{{invoice.first_reminder}}</td>
           <td>{{invoice.second_reminder}}</td>
+          <td><a href="{{ url_for('flat_invoice', acc=invoice.invoice_num) }}">Info <i class="icon-zoom-in"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

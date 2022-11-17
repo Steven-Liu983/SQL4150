@@ -20,7 +20,7 @@
   <div class='dropdown'>
     <a href="{{url_for('staffs')}}"><i class="icon-user"></i> Staffs</a>
     <div class="dropdown-content">
-      <a href="{{url_for('staff_list')}}">Staff List</a>
+      <a class="active" href="{{url_for('staff_list')}}">Staff List</a>
     </div>
   </div>
   <div class='dropdown'>
@@ -50,7 +50,7 @@
   <div class='dropdown'>
     <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
     <div class="dropdown-content">
-        <a class="active" href="{{url_for('hall_leases')}}">Hall Leases</a>
+        <a href="{{url_for('hall_leases')}}">Hall Leases</a>
         <a href="{{url_for('flat_leases')}}">Flat Leases</a>
     </div>
   </div>
@@ -72,33 +72,37 @@
 <div class="main">
   <div class="jumbotron">
     {% if session['admin'] %}
-    <h1 align="center">Leases Of Residence Halls</h1>
+    <h1 align="center">The Staff's Information</h1>
     <br>
-    <table class="tables">
-        <thead>
+    <table class="tablerec">
         <tr>
-          <th>Lease Number</th>
-          <th>Semester(s)</th>
-          <th>Grade 12 Number</th>
-          <th>Place Number</th>
-          <th>Lease Start</th>
-          <th>Lease End</th>
-          <th>Details</th>
+            <td><b>Staff Number</b></td>
+            <td>{{staff.staff_num}}</td>
         </tr>
-        </thead>
-        <tbody>
-        {% for lease in leases %}
         <tr>
-          <td>{{lease.lease_num}}</td>
-          <td>{{lease.semester}}</td>
-          <td>{{lease.grade_num}}</td>
-          <td>{{lease.place_num}}</td>
-          <td>{{lease.lease_start}}</td>
-          <td>{{lease.lease_end}}</td>
-          <td><a href="{{ url_for('hall_lease', acc=lease.lease_num) }}">Info <i class="icon-zoom-in"></i></a></td>
+            <td><b>Staff's Name</b></td>
+            <td>{{staff.fname}} {{staff.lname}}</td>
         </tr>
-        {% endfor %}
-        </tbody>
+        <tr>
+            <td><b>Address</b></td>
+            <td>{{staff.address}}, {{staff.city}}, {{staff.province}} {{staff.postcode}}</td>
+        </tr>
+        <tr>
+            <td><b>Gender</b></td>
+            <td>{{staff.gender}}</td>
+        </tr>
+        <tr>
+          <td><b>Date Of Birth</b></td>
+          <td>{{staff.dob}}</td>
+        </tr>
+        <tr>
+            <td><b>Position</b></td>
+            <td>{{staff.position}}</td>
+        </tr>
+        <tr>
+            <td><b>Location</b></td>
+            <td>{{staff.location}}</td>
+        </tr>
     </table>
     {% else %}
       <a href="{{ url_for('login') }}">Login</a>

@@ -82,6 +82,7 @@
           <th>Internal Phone</th>
           <th>Room Number</th>
           <th>Staff Number</th>
+          <th>Details</th>
         </tr>
         </thead>
         <tbody>
@@ -92,6 +93,7 @@
           <td>{{advisor.phone}}</td>
           <td>{{advisor.room_num}}</td>
           <td>{{advisor.staff_num}}</td>
+          <td><a href="{{ url_for('advisor_info', acc=advisor.advisor_id) }}">Info <i class="icon-zoom-in"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

@@ -58,7 +58,7 @@
     <a href="{{url_for('invoices')}}"><i class="icon-credit-card"></i> Invoices</a>
     <div class="dropdown-content">
         <a href="{{url_for('hall_invoices')}}">Hall Invoices</a>
-        <a class="active" href="{{url_for('flat_invoices')}}">Flat Invoices</a>
+        <a href="{{url_for('flat_invoices')}}">Flat Invoices</a>
     </div>
   </div>
   <div class='dropdown'>
@@ -82,6 +82,7 @@
           <th>Flat Number</th>
           <th>Date Of Inspection</th>
           <th>Satisfied</th>
+          <th>Details</th>
         </tr>
         </thead>
         <tbody>
@@ -92,6 +93,7 @@
           <td>{{inspect.flat_num}}</td>
           <td>{{inspect.inspect_date}}</td>
           <td>{{inspect.satisfy}}</td>
+          <td><a href="{{ url_for('inspect_info', acc=inspect.inspect_num) }}">Info <i class="icon-zoom-in"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

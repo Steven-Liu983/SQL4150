@@ -80,6 +80,7 @@
           <th>Flat Number</th>
           <th>Address</th>
           <th>Available Rooms</th>
+          <th>Details</th>
         </tr>
         </thead>
         <tbody>
@@ -88,6 +89,7 @@
           <td>{{flat.flat_num}}</td>
           <td>{{flat.flat_address}}</td>
           <td>{{flat.avail_room}}</td>
+          <td><a href="{{ url_for('flat_info', acc=flat.flat_num) }}">Info <i class="icon-zoom-in"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

@@ -50,14 +50,14 @@
   <div class='dropdown'>
     <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
     <div class="dropdown-content">
-        <a class="active" href="{{url_for('hall_leases')}}">Hall Leases</a>
+        <a href="{{url_for('hall_leases')}}">Hall Leases</a>
         <a href="{{url_for('flat_leases')}}">Flat Leases</a>
     </div>
   </div>
   <div class='dropdown'>
     <a href="{{url_for('invoices')}}"><i class="icon-credit-card"></i> Invoices</a>
     <div class="dropdown-content">
-        <a href="{{url_for('hall_invoices')}}">Hall Invoices</a>
+        <a class="active" href="{{url_for('hall_invoices')}}">Hall Invoices</a>
         <a href="{{url_for('flat_invoices')}}">Flat Invoices</a>
     </div>
   </div>
@@ -72,33 +72,73 @@
 <div class="main">
   <div class="jumbotron">
     {% if session['admin'] %}
-    <h1 align="center">Leases Of Residence Halls</h1>
+    <h1 align="center">The Residence Hall Invoice</h1>
     <br>
-    <table class="tables">
-        <thead>
+    <table class="tablerec">
         <tr>
-          <th>Lease Number</th>
-          <th>Semester(s)</th>
-          <th>Grade 12 Number</th>
-          <th>Place Number</th>
-          <th>Lease Start</th>
-          <th>Lease End</th>
-          <th>Details</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for lease in leases %}
+            <td><b>Invoice Number</b></td>
+            <td>{{invoice.invoice_num}}</td>
+          </tr>
         <tr>
+          <td><b>Lease Number</b></td>
           <td>{{lease.lease_num}}</td>
-          <td>{{lease.semester}}</td>
-          <td>{{lease.grade_num}}</td>
-          <td>{{lease.place_num}}</td>
-          <td>{{lease.lease_start}}</td>
-          <td>{{lease.lease_end}}</td>
-          <td><a href="{{ url_for('hall_lease', acc=lease.lease_num) }}">Info <i class="icon-zoom-in"></i></a></td>
         </tr>
-        {% endfor %}
-        </tbody>
+        <tr>
+            <td><b>Semester(s)</b></td>
+            <td>{{lease.semester}}</td>
+        </tr>
+        <tr>
+            <td><b>Payment Due</b></td>
+            <td>${{ "{:.2f}".format(invoice.payment_due) }}</td>
+        </tr>
+        <tr>
+            <td><b>Student's Name</b></td>
+            <td>{{student.fname}} {{student.lname}}</td>
+        </tr>
+        <tr>
+            <td><b>Grade 12 Number</b></td>
+            <td>{{student.grade_num}}</td>
+        </tr>
+        <tr>
+          <td><b>Place Number</b></td>
+          <td>{{hroom.place_num}}</td>
+        </tr>
+        <tr>
+            <td><b>Room Number</b></td>
+            <td>{{hroom.room_num}}</td>
+        </tr>
+        <tr>
+            <td><b>Hall Number</b></td>
+            <td>{{hall.hall_num}}</td>
+        </tr>
+        <tr>
+            <td><b>Hall Name</b></td>
+            <td>{{hall.hall_name}}</td>
+        </tr>
+        <tr>
+            <td><b>Address</b></td>
+            <td>{{hall.hall_address}}</td>
+        </tr>
+        <tr>
+            <td><b>Payment Paid</b></td>
+            <td>${{"{:.2f}".format(invoice.payment_paid)}}</td>
+        </tr>
+        <tr>
+            <td><b>Payment Date</b></td>
+            <td>{{invoice.payment_date}}</td>
+        </tr>
+        <tr>
+            <td><b>Payment Method</b></td>
+            <td>{{invoice.payment_method}}</td>
+        </tr>
+        <tr>
+            <td><b>First Reminder</b></td>
+            <td>{{invoice.first_reminder}}</td>
+        </tr>
+        <tr>
+            <td><b>Second Reminder</b></td>
+            <td>{{invoice.second_reminder}}</td>
+        </tr>
     </table>
     {% else %}
       <a href="{{ url_for('login') }}">Login</a>
