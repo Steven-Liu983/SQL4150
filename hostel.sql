@@ -2,8 +2,8 @@
 -- version 5.1.2
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Nov 17, 2022 at 02:14 AM
+-- Host: localhost:3307
+-- Generation Time: Nov 17, 2022 at 05:48 PM
 -- Server version: 5.7.24
 -- PHP Version: 8.0.1
 
@@ -39,7 +39,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`id`, `email`, `password`, `role`) VALUES
-(1, 'admin@email.com', 'pbkdf2:sha256:260000$8Q4XfaNA89L9xe3p$6dbd1aeb435c8bad3112534678a4aa03169d728df277c748fd9e3eb03111c3c9', 'Administrator');
+(1, 'admin@email.com', 'pbkdf2:sha256:260000$Zcn1Rm2OLBpa0GFu$28a2b6e10bfb50f034eb28db592679d646f40228439196eff6e47dd4c6ac0ee4', 'Administrator');
 
 -- --------------------------------------------------------
 
@@ -124,7 +124,7 @@ CREATE TABLE `hall_rooms` (
 --
 
 INSERT INTO `hall_rooms` (`place_num`, `room_num`, `monthly_rent`, `hall_num`, `capacity`) VALUES
-(101, 101, 965.95, 1, 0);
+(101, 101, 865.95, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -170,7 +170,7 @@ CREATE TABLE `invoices_flats` (
 --
 
 INSERT INTO `invoices_flats` (`invoice_num`, `lease_num`, `payment_due`, `payment_paid`, `payment_date`, `payment_method`, `first_reminder`, `second_reminder`) VALUES
-(111010, 11101, 0, 5600, '2022-09-02', 'Onlline Banking', '2022-08-30', '2022-09-02');
+(111010, 11101, 0, 5600, '2022-09-02', 'Online Banking', '2022-08-30', '2022-09-02');
 
 -- --------------------------------------------------------
 
@@ -189,6 +189,13 @@ CREATE TABLE `invoices_halls` (
   `second_reminder` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `invoices_halls`
+--
+
+INSERT INTO `invoices_halls` (`invoice_num`, `lease_num`, `payment_due`, `payment_paid`, `payment_date`, `payment_method`, `first_reminder`, `second_reminder`) VALUES
+(11010, 1101, 6930, 0, '2022-09-05', 'N/A', '2022-08-30', '2022-09-02');
+
 -- --------------------------------------------------------
 
 --
@@ -200,7 +207,6 @@ CREATE TABLE `leases_flats` (
   `semester` int(11) NOT NULL,
   `grade_num` int(11) NOT NULL,
   `place_num` int(11) NOT NULL,
-  `flat_num` int(11) NOT NULL,
   `lease_start` date NOT NULL,
   `lease_end` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -209,8 +215,8 @@ CREATE TABLE `leases_flats` (
 -- Dumping data for table `leases_flats`
 --
 
-INSERT INTO `leases_flats` (`lease_num`, `semester`, `grade_num`, `place_num`, `flat_num`, `lease_start`, `lease_end`) VALUES
-(11101, 2, 60270768, 1001, 1, '2022-09-05', '2023-04-28');
+INSERT INTO `leases_flats` (`lease_num`, `semester`, `grade_num`, `place_num`, `lease_start`, `lease_end`) VALUES
+(11101, 2, 60270768, 1001, '2022-09-05', '2023-04-28');
 
 -- --------------------------------------------------------
 
@@ -223,7 +229,6 @@ CREATE TABLE `leases_halls` (
   `semester` int(11) NOT NULL,
   `grade_num` int(11) NOT NULL,
   `place_num` int(11) NOT NULL,
-  `hall_num` int(11) NOT NULL,
   `lease_start` date NOT NULL,
   `lease_end` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -232,8 +237,8 @@ CREATE TABLE `leases_halls` (
 -- Dumping data for table `leases_halls`
 --
 
-INSERT INTO `leases_halls` (`lease_num`, `semester`, `grade_num`, `place_num`, `hall_num`, `lease_start`, `lease_end`) VALUES
-(1101, 2, 72269035, 101, 1, '2022-09-05', '2023-04-28');
+INSERT INTO `leases_halls` (`lease_num`, `semester`, `grade_num`, `place_num`, `lease_start`, `lease_end`) VALUES
+(1101, 2, 72269035, 101, '2022-09-05', '2023-04-28');
 
 -- --------------------------------------------------------
 
@@ -296,7 +301,7 @@ CREATE TABLE `student` (
 INSERT INTO `student` (`grade_num`, `fname`, `lname`, `address`, `city`, `province`, `postcode`, `dob`, `gender`, `category`, `nationality`, `special_needs`, `comments`, `status`, `major`, `advisor_id`) VALUES
 (26443806, 'Jose', 'Garcia', '2345 Second Street', 'Toronto', 'Ontario', '34265', '2000-04-12', 'Male', 'First-Year Undergrad', 'Mexican', '', '', 'Waiting', 'Physics', 10001),
 (60270768, 'Mark', 'Johnson', '2536 Fourth Street', 'London', 'Ontario', '25376', '2001-11-15', 'Male', 'First-Year Undergrad', 'Canadian', '', '', 'Placed', 'Chemistry', 10001),
-(72269035, 'John', 'Smith', '1234 First Street', 'Windsor', 'Ontario', '16358', '2000-11-06', 'Male', 'First-Year Undergrad', 'Canadian', 'ADHD', 'Difficult to pay attention in class', 'Placed', 'Computer Science', 10001);
+(72269035, 'John', 'Smith', '1234 First Street', 'Windsor', 'Ontario', '16358', '2000-11-06', 'Male', 'First-Year Undergrad', 'Canadian', 'ADHD', 'Need to pay attention in class', 'Placed', 'Computer Science', 10001);
 
 -- --------------------------------------------------------
 
@@ -384,8 +389,7 @@ ALTER TABLE `invoices_halls`
 ALTER TABLE `leases_flats`
   ADD PRIMARY KEY (`lease_num`),
   ADD UNIQUE KEY `grade_num` (`grade_num`),
-  ADD KEY `place_num` (`place_num`),
-  ADD KEY `flat_num` (`flat_num`);
+  ADD KEY `place_num` (`place_num`);
 
 --
 -- Indexes for table `leases_halls`
@@ -393,8 +397,7 @@ ALTER TABLE `leases_flats`
 ALTER TABLE `leases_halls`
   ADD PRIMARY KEY (`lease_num`),
   ADD UNIQUE KEY `grade_num` (`grade_num`),
-  ADD UNIQUE KEY `place_num` (`place_num`),
-  ADD KEY `hall_num` (`hall_num`);
+  ADD UNIQUE KEY `place_num` (`place_num`);
 
 --
 -- Indexes for table `staff`
@@ -465,7 +468,7 @@ ALTER TABLE `invoices_flats`
 -- AUTO_INCREMENT for table `invoices_halls`
 --
 ALTER TABLE `invoices_halls`
-  MODIFY `invoice_num` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `invoice_num` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11011;
 
 --
 -- AUTO_INCREMENT for table `leases_flats`
@@ -549,16 +552,14 @@ ALTER TABLE `invoices_halls`
 --
 ALTER TABLE `leases_flats`
   ADD CONSTRAINT `leases_flats_ibfk_1` FOREIGN KEY (`grade_num`) REFERENCES `student` (`grade_num`),
-  ADD CONSTRAINT `leases_flats_ibfk_2` FOREIGN KEY (`place_num`) REFERENCES `flats_rooms` (`place_num`),
-  ADD CONSTRAINT `leases_flats_ibfk_3` FOREIGN KEY (`flat_num`) REFERENCES `stu_flats` (`flat_num`);
+  ADD CONSTRAINT `leases_flats_ibfk_2` FOREIGN KEY (`place_num`) REFERENCES `flats_rooms` (`place_num`);
 
 --
 -- Constraints for table `leases_halls`
 --
 ALTER TABLE `leases_halls`
   ADD CONSTRAINT `leases_halls_ibfk_1` FOREIGN KEY (`grade_num`) REFERENCES `student` (`grade_num`),
-  ADD CONSTRAINT `leases_halls_ibfk_2` FOREIGN KEY (`place_num`) REFERENCES `hall_rooms` (`place_num`),
-  ADD CONSTRAINT `leases_halls_ibfk_3` FOREIGN KEY (`hall_num`) REFERENCES `hall_res` (`hall_num`);
+  ADD CONSTRAINT `leases_halls_ibfk_2` FOREIGN KEY (`place_num`) REFERENCES `hall_rooms` (`place_num`);
 
 --
 -- Constraints for table `student`
