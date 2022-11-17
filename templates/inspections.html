@@ -3,10 +3,85 @@
 
 {% block content %}
 
+<div class="sidenav">
+  <a href="{{url_for('dashboard')}}"><i class="icon-dashboard"></i> Dashboard</a>
+  <div class='dropdown'>
+    <a href="{{url_for('students')}}"><i class="icon-user"></i> Students</a>
+    <div class="dropdown-content">
+      <a href="{{url_for('student_list')}}">Student List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('advisors')}}"><i class="icon-user"></i> Advisors</a>
+    <div class="dropdown-content">
+      <a href="{{url_for('advisor_list')}}">Advisor List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('staffs')}}"><i class="icon-user"></i> Staffs</a>
+    <div class="dropdown-content">
+      <a href="{{url_for('staff_list')}}">Staff List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('hall_res')}}"><i class="icon-building"></i> Residences</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_list')}}">Hall List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('hall_rooms')}}"><i class="icon-columns"></i> Hall Rooms</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hroom_list')}}">Hall Room List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('stu_flats')}}"><i class="icon-home"></i> Student Flats</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('flat_list')}}">Flat List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('flat_rooms')}}"><i class="icon-th-large"></i> Flat Rooms</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('froom_list')}}">Flat Room List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_leases')}}">Hall Leases</a>
+        <a href="{{url_for('flat_leases')}}">Flat Leases</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('invoices')}}"><i class="icon-credit-card"></i> Invoices</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_invoices')}}">Hall Invoices</a>
+        <a href="{{url_for('flat_invoices')}}">Flat Invoices</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a class="active" href="{{url_for('inspections')}}"><i class="icon-lightbulb"></i> Inspections</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('inspect_list')}}">Inspect List</a>
+    </div>
+  </div>
+</div>
+
 <div class="main">
   <div class="jumbotron">
-    <h1 align="center">Flat Inspections</h1>
+    <h1 align="center">New Flat Inspections</h1>
     <br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{category}}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
     <form method="POST">
       {{ form.hidden_tag()}}
@@ -20,8 +95,8 @@
             {{ form.flat_num(class="form-control") }}
         </div>
         <div class="form-group col-md-4">
-            <strong>{{ form.date.label }}</strong>
-            {{ form.date(class="form-control", type="date") }}
+            <strong>{{ form.inspect_date.label }}</strong>
+            {{ form.inspect_date(class="form-control", type="date") }}
         </div>
       </div>
       <div class="form-row">

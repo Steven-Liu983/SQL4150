@@ -30,7 +30,7 @@
     </div>
   </div>
   <div class='dropdown'>
-    <a class="active" href="{{url_for('hall_rooms')}}"><i class="icon-columns"></i> Hall Rooms</a>
+    <a href="{{url_for('hall_rooms')}}"><i class="icon-columns"></i> Hall Rooms</a>
     <div class="dropdown-content">
         <a href="{{url_for('hroom_list')}}">Hall Room List</a>
     </div>
@@ -58,61 +58,47 @@
     <a href="{{url_for('invoices')}}"><i class="icon-credit-card"></i> Invoices</a>
     <div class="dropdown-content">
         <a href="{{url_for('hall_invoices')}}">Hall Invoices</a>
-        <a href="{{url_for('flat_invoices')}}">Flat Invoices</a>
+        <a class="active" href="{{url_for('flat_invoices')}}">Flat Invoices</a>
     </div>
   </div>
   <div class='dropdown'>
     <a href="{{url_for('inspections')}}"><i class="icon-lightbulb"></i> Inspections</a>
     <div class="dropdown-content">
-        <a href="{{url_for('inspect_list')}}">Inspect List</a>
-    </div>
-  </div>
-  <div class='dropdown'>
-    <a href="{{url_for('inspections')}}"><i class="icon-lightbulb"></i> Inspections</a>
-    <div class="dropdown-content">
-        <a href="{{url_for('inspect_list')}}">Inspect List</a>
+        <a class="active" href="{{url_for('inspect_list')}}">Inspect List</a>
     </div>
   </div>
 </div>
 
 <div class="main">
   <div class="jumbotron">
-    <h1 align="center">Residence Hall Rooms</h1>
+    {% if session['admin'] %}
+    <h1 align="center">List Of Student Flat Inspections</h1>
     <br>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{category}}" role="alert">
-            {{ message }}
-          </div>
+    <table class="tables">
+        <thead>
+        <tr>
+          <th>Inspection Number</th>
+          <th>Staff Number</th>
+          <th>Flat Number</th>
+          <th>Date Of Inspection</th>
+          <th>Satisfied</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for inspect in inspects %}
+        <tr>
+          <td>{{inspect.inspect_num}}</td>
+          <td>{{inspect.staff_num}}</td>
+          <td>{{inspect.flat_num}}</td>
+          <td>{{inspect.inspect_date}}</td>
+          <td>{{inspect.satisfy}}</td>
+        </tr>
         {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    <form method="POST">
-      {{ form.hidden_tag()}}
-      <div class="form-row">
-        <div class="form-group col-md-6">
-            <strong>{{ form.place_num.label }}</strong>
-            {{ form.place_num(class="form-control") }}
-        </div>
-        <div class="form-group col-md-6">
-            <strong>{{ form.room_num.label }}</strong>
-            {{ form.room_num(class="form-control") }}
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-6">
-            <strong>{{ form.rent.label }}</strong>
-            {{ form.rent(class="form-control") }}
-        </div>
-        <div class="form-group col-md-6">
-            <strong>{{ form.hall_num.label }}</strong>
-            {{ form.hall_num(class="form-control") }}
-        </div>
-      </div>
-      {{ form.submit(class="btn btn-primary") }}
-    </form>
+        </tbody>
+    </table>
+    {% else %}
+      <a href="{{ url_for('login') }}">Login</a>
+    {% endif %}
   </div>
 </div>
 
