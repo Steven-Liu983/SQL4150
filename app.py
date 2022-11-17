@@ -75,7 +75,7 @@ class Advisors(db.Model):
     department = db.Column(db.String(25), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
     room_num = db.Column(db.Integer, nullable=False)
-    staff_num = db.Column(db.Integer, ForeignKey('staff.staff_num'), nullable=False, unique=True)   # unique staff number
+    staff_num = db.Column(db.Integer, ForeignKey('staff.staff_num'), nullable=False, unique=True)   # one-to-one relationship
     student = db.relationship('Students', back_populates='advisor')
     staff = db.relationship('Staffs', back_populates='advisor')
     
@@ -99,8 +99,9 @@ class Staffs(db.Model):
     gender = db.Column(db.String(15), nullable=False)
     position = db.Column(db.String(25), nullable=False)
     location = db.Column(db.String(25), nullable=False)
-    advisor = db.relationship('Advisors', back_populates='staff', uselist=False)  # one-to-one relationship
-    hallres = db.relationship('HallRes', back_populates='staff', uselist=False)
+    advisor = db.relationship('Advisors', back_populates='staff')
+    hallres = db.relationship('HallRes', back_populates='staff')
+    inspector = db.relationship('Inspections', back_populates='staff')
 
     def __init__(self,staff_num,fname,lname,address,city,province,postcode,dob,gender,position,location):
         self.staff_num = staff_num
@@ -159,6 +160,7 @@ class StuFlats(db.Model):
     avail_room = db.Column(db.Integer, nullable=False)  # number of single bedrooms available
     flatrooms = db.relationship('FlatsRooms', back_populates='flatnum')
     lease_flat = db.relationship('LeasesFlats', back_populates='flatnum')
+    inspector = db.relationship('Inspections', back_populates='flatnum')
 
     def __init__(self,flat_num,flat_address,avail_room):
         self.flat_num = flat_num
@@ -272,6 +274,25 @@ class InvoicesFlats(db.Model):
         self.first_reminder = first_reminder
         self.second_reminder = second_reminder
 
+class Inspections(db.Model):
+    __tablename__ = 'inspection'
+    inspect_num = db.Column(db.Integer, primary_key=True)
+    staff_num = db.Column(db.Integer, ForeignKey('staff.staff_num'), nullable=False)
+    flat_num = db.Column(db.Integer, ForeignKey('stu_flats.flat_num'), nullable=False)
+    inspect_date = db.Column(db.Date, nullable=False)
+    satisfy = db.Column(db.String(5), nullable=False)
+    comments = db.Column(db.Text, nullable=True)
+    staff = db.relationship('Staffs', back_populates='inspector')
+    flatnum = db.relationship('StuFlats', back_populates='inspector')
+
+    def __init__(self,inspect_num,staff_num,flat_num,inspect_date,satisfy,comments):
+        self.inspect_num = inspect_num
+        self.staff_num = staff_num
+        self.flat_num = flat_num
+        self.inspect_date = inspect_date
+        self.satisfy = satisfy
+        self.comments = comments
+
 # Create the forms
 class LoginForm(FlaskForm):
     email = StringField('Account Email', validators=[InputRequired(), Length(min=6, max=50)])
@@ -361,10 +382,10 @@ class InvoicesForm(FlaskForm):
 class InspectForm(FlaskForm):
     inspect_num = IntegerField('Inspection Number', validators=[InputRequired(), NumberRange(min=10, max=999)])
     staff_num = IntegerField('Staff Number', validators=[InputRequired(), NumberRange(min=100000, max=999999)])
-    date = DateTimeLocalField('Inspection Date', format='%Y-%m-%d')
+    flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
+    inspect_date = DateTimeLocalField('Inspection Date', format='%Y-%m-%d')
     satisfy = SelectField('Satisfactory', choices=['Yes', 'No'])
     comments = TextAreaField('Comments')
-    flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     submit = SubmitField('Add Inspection')
 
 class StaffForm(FlaskForm):
@@ -870,8 +891,46 @@ def flat_invoices():
 
 @app.route("/inspections", methods=["POST", "GET"])
 def inspections():
+    if session['admin'] is None:
+        abort(403)
     form = InspectForm()
+    if form.validate_on_submit():
+        inspect_num = form.inspect_num.data
+        staff_num = form.staff_num.data
+        flat_num = form.flat_num.data
+        inspect_check = Inspections.query.filter_by(inspect_num=inspect_num).first()    # check the primary key
+        staff_check = Staffs.query.filter_by(staff_num=staff_num).first()
+        flat_check = StuFlats.query.filter_by(flat_num=flat_num).first()
+        if inspect_check:
+            flash('The inspection number is already added', 'danger')
+            return redirect(url_for('inspections'))
+        elif not staff_check:
+            flash('The staff does not exist', 'danger')
+            return redirect(url_for('inspections'))
+        elif staff_check.position != "Flat Inspector":
+            flash('The staff is not a flat inspector', 'danger')
+            return redirect(url_for('inspections'))
+        elif not flat_check:
+            flash('The student flat does not exist', 'danger')
+            return redirect(url_for('inspections'))
+        else:
+            inspect_date = form.inspect_date.data
+            satisfy = form.satisfy.data
+            comments = form.comments.data
+
+            new_inspect = Inspections(inspect_num, staff_num, flat_num, inspect_date, satisfy, comments)
+            db.session.add(new_inspect)
+            db.session.commit()
+            flash('A new student flat inspection is added', 'success')
+            return redirect(url_for('inspections'))
     return render_template('inspections.html', form=form)
+
+@app.route("/inspect_list", methods=["POST", "GET"])
+def inspect_list():
+    if session['admin'] is None:
+        abort(403)
+    inspects = Inspections.query.order_by(Inspections.inspect_num.desc())
+    return render_template('inspect_list.html', inspects=inspects)
 
 @app.route("/search", methods=["POST", "GET"])
 def search():
