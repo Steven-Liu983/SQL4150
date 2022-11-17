@@ -12,7 +12,7 @@ import random
 app = Flask(__name__)
 #encryption relies on secret keys so they could be run
 app.config['SECRET_KEY'] = os.urandom(12).hex()
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost:3306/hostel'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost:3307/hostel'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -126,7 +126,6 @@ class HallRes(db.Model):
     capacity = db.Column(db.Integer, nullable=False)    # number of rooms in the hall
     staff = db.relationship('Staffs', back_populates='hallres')
     hallrooms = db.relationship('HallRooms', back_populates='hallnum')
-    lease_hall = db.relationship('LeasesHalls', back_populates='hallnum')
 
     def __init__(self,hall_num,hall_name,hall_address,hall_phone,staff_num,capacity):
         self.hall_num = hall_num
@@ -159,7 +158,6 @@ class StuFlats(db.Model):
     flat_address = db.Column(db.String(50), nullable=False)
     avail_room = db.Column(db.Integer, nullable=False)  # number of single bedrooms available
     flatrooms = db.relationship('FlatsRooms', back_populates='flatnum')
-    lease_flat = db.relationship('LeasesFlats', back_populates='flatnum')
     inspector = db.relationship('Inspections', back_populates='flatnum')
 
     def __init__(self,flat_num,flat_address,avail_room):
@@ -190,20 +188,17 @@ class LeasesHalls(db.Model):
     semester = db.Column(db.Integer, nullable=False)
     grade_num = db.Column(db.Integer, ForeignKey('student.grade_num'), nullable=False, unique=True)
     place_num = db.Column(db.Integer, ForeignKey('hall_rooms.place_num'), nullable=False, unique=True)
-    hall_num = db.Column(db.Integer, ForeignKey('hall_res.hall_num'), nullable=False)
     lease_start = db.Column(db.Date, nullable=False)
     lease_end = db.Column(db.Date, nullable=True)
     student = db.relationship('Students', back_populates='lease_hall')
     hallroom = db.relationship('HallRooms', back_populates='lease_hall')
-    hallnum = db.relationship('HallRes', back_populates='lease_hall')
     invoice_hall = db.relationship('InvoicesHalls', back_populates='lease_hall')
 
-    def __init__(self,lease_num,semester,grade_num,place_num,hall_num,lease_start,lease_end):
+    def __init__(self,lease_num,semester,grade_num,place_num,lease_start,lease_end):
         self.lease_num = lease_num
         self.semester = semester
         self.grade_num = grade_num
         self.place_num = place_num
-        self.hall_num = hall_num
         self.lease_start = lease_start
         self.lease_end = lease_end
 
@@ -213,20 +208,17 @@ class LeasesFlats(db.Model):
     semester = db.Column(db.Integer, nullable=False)
     grade_num = db.Column(db.Integer, ForeignKey('student.grade_num'), nullable=False, unique=True) # each student has 1 lease
     place_num = db.Column(db.Integer, ForeignKey('flats_rooms.place_num'), nullable=False)
-    flat_num = db.Column(db.Integer, ForeignKey('stu_flats.flat_num'), nullable=False)
     lease_start = db.Column(db.Date, nullable=False)
     lease_end = db.Column(db.Date, nullable=True)
     student = db.relationship('Students', back_populates='lease_flat')
     flatroom = db.relationship('FlatsRooms', back_populates='lease_flat')
-    flatnum = db.relationship('StuFlats', back_populates='lease_flat')
     invoice_flat = db.relationship('InvoicesFlats', back_populates='lease_flat')
 
-    def __init__(self,lease_num,semester,grade_num,place_num,flat_num,lease_start,lease_end):
+    def __init__(self,lease_num,semester,grade_num,place_num,lease_start,lease_end):
         self.lease_num = lease_num
         self.semester = semester
         self.grade_num = grade_num
         self.place_num = place_num
-        self.flat_num = flat_num
         self.lease_start = lease_start
         self.lease_end = lease_end
 
@@ -357,11 +349,10 @@ class FlatRoomsForm(FlaskForm):
     submit = SubmitField('Add Bedroom')
 
 class LeasesForm(FlaskForm):
-    lease_num = IntegerField('Lease Number', validators=[InputRequired()])    # build_num + place_num
+    lease_num = IntegerField('Lease Number', validators=[InputRequired()])    # building + place_num
     semester = IntegerField('Number of Semesters', validators=[InputRequired(), NumberRange(min=1, max=3)])
     grade_num = IntegerField('Grade 12 Number', validators=[InputRequired(), NumberRange(min=10000000, max=99999999)])
     place_num = IntegerField('Place Number', validators=[InputRequired()])
-    build_num = IntegerField('Hall/Flat Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     hostel = SelectField('Select Hostel', choices=['Residence Hall', 'Student Flats'])
     lease_start = DateTimeLocalField('Start Date', format='%Y-%m-%d')
     lease_end = DateTimeLocalField('End Date', format='%Y-%m-%d')
@@ -374,7 +365,7 @@ class InvoicesForm(FlaskForm):
     payment_due = FloatField('Payment Due $', validators=[InputRequired()])
     payment_paid = FloatField('Payment Paid $', validators=[InputRequired()])
     payment_date = DateTimeLocalField('Payment Date', format='%Y-%m-%d')
-    payment_method = SelectField('Payment Method', choices=['Cheque', 'Cash', 'Debit Card', 'Onlline Banking', 'Money Order'])
+    payment_method = SelectField('Payment Method', choices=['N/A', 'Cheque', 'Cash', 'Debit Card', 'Online Banking', 'Money Order'])
     first_reminder = DateTimeLocalField('First Reminder Date', format='%Y-%m-%d')
     second_reminder = DateTimeLocalField('Second Reminder Date', format='%Y-%m-%d') # payment due date
     submit = SubmitField('Add Invoice')
@@ -505,6 +496,15 @@ def student_list():
     students = Students.query.order_by(Students.grade_num.desc())
     return render_template('student_list.html', students=students)
 
+@app.route("/student_info/<acc>", methods=["POST", "GET"])
+def student_info(acc):
+    if session['admin'] is None:
+        abort(403)
+    student = Students.query.filter_by(grade_num=acc).first()
+    advisor = Advisors.query.filter_by(advisor_id=student.advisor_id).first()
+    staff = Staffs.query.filter_by(staff_num=advisor.staff_num).first()
+    return render_template('student_info.html', student=student, staff=staff)
+
 @app.route("/advisors", methods=["POST", "GET"])
 def advisors():
     if session['admin'] is None:
@@ -547,6 +547,14 @@ def advisor_list():
     advisors = Advisors.query.order_by(Advisors.advisor_id.desc())
     return render_template('advisor_list.html', advisors=advisors)
 
+@app.route("/advisor_info/<acc>", methods=["POST", "GET"])
+def advisor_info(acc):
+    if session['admin'] is None:
+        abort(403)
+    advisor = Advisors.query.filter_by(advisor_id=acc).first()
+    staff = Staffs.query.filter_by(staff_num=advisor.staff_num).first()
+    return render_template('advisor_info.html', advisor=advisor, staff=staff)
+
 @app.route("/staffs", methods=["POST", "GET"])
 def staffs():
     if session['admin'] is None:
@@ -583,6 +591,13 @@ def staff_list():
         abort(403)
     staffs = Staffs.query.order_by(Staffs.staff_num.desc())
     return render_template('staff_list.html', staffs=staffs)
+
+@app.route("/staff_info/<acc>", methods=["POST", "GET"])
+def staff_info(acc):
+    if session['admin'] is None:
+        abort(403)
+    staff = Staffs.query.filter_by(staff_num=acc).first()
+    return render_template('staff_info.html', staff=staff)
 
 @app.route("/hall_res", methods=["POST", "GET"])
 def hall_res():
@@ -627,6 +642,14 @@ def hall_list():
     halls = HallRes.query.order_by(HallRes.hall_num.desc())
     return render_template('hall_list.html', halls=halls)
 
+@app.route("/hall_info/<acc>", methods=["POST", "GET"])
+def hall_info(acc):
+    if session['admin'] is None:
+        abort(403)
+    hall = HallRes.query.filter_by(hall_num=acc).first()
+    staff = Staffs.query.filter_by(staff_num=hall.staff_num).first()
+    return render_template('hall_info.html', hall=hall, staff=staff)
+
 @app.route("/hall_rooms", methods=["POST", "GET"])
 def hall_rooms():
     if session['admin'] is None:
@@ -666,6 +689,14 @@ def hroom_list():
     one_rooms = HallRooms.query.filter_by(hall_num=1).order_by(HallRooms.place_num.desc())
     return render_template('hroom_list.html', one_rooms=one_rooms)
 
+@app.route("/hroom_info/<acc>", methods=["POST", "GET"])
+def hroom_info(acc):
+    if session['admin'] is None:
+        abort(403)
+    hroom = HallRooms.query.filter_by(place_num=acc).first()
+    hall = HallRes.query.filter_by(hall_num=hroom.hall_num).first()
+    return render_template('hroom_info.html', hroom=hroom, hall=hall)
+
 @app.route("/stu_flats", methods=["POST", "GET"])
 def stu_flats():
     if session['admin'] is None:
@@ -694,6 +725,13 @@ def flat_list():
         abort(403)
     flats = StuFlats.query.order_by(StuFlats.flat_num.desc())
     return render_template('flat_list.html', flats=flats)
+
+@app.route("/flat_info/<acc>", methods=["POST", "GET"])
+def flat_info(acc):
+    if session['admin'] is None:
+        abort(403)
+    flat = StuFlats.query.filter_by(flat_num=acc).first()
+    return render_template('flat_info.html', flat=flat)
 
 @app.route("/flat_rooms", methods=["POST", "GET"])
 def flat_rooms():
@@ -734,6 +772,14 @@ def froom_list():
     one_rooms = FlatsRooms.query.filter_by(flat_num=1).order_by(FlatsRooms.place_num.desc())
     return render_template('froom_list.html', one_rooms=one_rooms)
 
+@app.route("/froom_info/<acc>", methods=["POST", "GET"])
+def froom_info(acc):
+    if session['admin'] is None:
+        abort(403)
+    froom = FlatsRooms.query.filter_by(place_num=acc).first()
+    flat = StuFlats.query.filter_by(flat_num=froom.flat_num).first()
+    return render_template('froom_info.html', froom=froom, flat=flat)
+
 @app.route("/leases", methods=["POST", "GET"])
 def leases():
     if session['admin'] is None:
@@ -744,7 +790,6 @@ def leases():
         hostel = form.hostel.data
         lease_num = form.lease_num.data
         place_num = form.place_num.data
-        build_num = form.build_num.data
         semester = form.semester.data
         lease_start = form.lease_start.data
         lease_end = form.lease_end.data
@@ -758,48 +803,40 @@ def leases():
         else:
             if hostel == "Residence Hall":
                 lease_check = LeasesHalls.query.filter_by(lease_num=lease_num).first()  # check the primary key
-                hall_check = HallRes.query.filter_by(hall_num=build_num).first()
                 place_check = HallRooms.query.filter_by(place_num=place_num).first()
                 if lease_check:
                     flash('The lease is already added', 'danger')
                     return redirect(url_for('leases'))
-                elif not hall_check:
-                    flash('The hall does not exist', 'danger')
-                    return redirect(url_for('leases'))
                 elif not place_check:
-                    flash('The room does not exist', 'danger')
+                    flash('The hall room does not exist', 'danger')
                     return redirect(url_for('leases'))
                 elif place_check.capacity < 1:
-                    flash('The room is full', 'danger')
+                    flash('The hall room is full', 'danger')
                     return redirect(url_for('leases'))
                 else:
                     student_check.status = "Placed"
                     place_check.capacity = place_check.capacity - 1
-                    new_lease = LeasesHalls(lease_num, semester, grade_num, place_num, build_num, lease_start, lease_end)
+                    new_lease = LeasesHalls(lease_num, semester, grade_num, place_num, lease_start, lease_end)
                     db.session.add(new_lease)
                     db.session.commit()
                     flash('A new lease in the Residence Hall room is added for the student', 'success')
                     return redirect(url_for('leases'))
             elif hostel == "Student Flats":
                 lease_check = LeasesFlats.query.filter_by(lease_num=lease_num).first()  # check the primary key
-                flat_check = StuFlats.query.filter_by(flat_num=build_num).first()
                 place_check = FlatsRooms.query.filter_by(place_num=place_num).first()
                 if lease_check:
                     flash('The lease is already added', 'danger')
                     return redirect(url_for('leases'))
-                elif not flat_check:
-                    flash('The flat does not exist', 'danger')
-                    return redirect(url_for('leases'))
                 elif not place_check:
-                    flash('The bedroom does not exist', 'danger')
+                    flash('The flat bedroom does not exist', 'danger')
                     return redirect(url_for('leases'))
                 elif place_check.capacity < 1:
-                    flash('The bedroom is full', 'danger')
+                    flash('The flat bedroom is full', 'danger')
                     return redirect(url_for('leases'))
                 else:
                     student_check.status = "Placed"
                     place_check.capacity = place_check.capacity - 1
-                    new_lease = LeasesFlats(lease_num, semester, grade_num, place_num, build_num, lease_start, lease_end)
+                    new_lease = LeasesFlats(lease_num, semester, grade_num, place_num, lease_start, lease_end)
                     db.session.add(new_lease)
                     db.session.commit()
                     flash('A new lease in the Student Flat room is added for the student', 'success')
@@ -810,15 +847,35 @@ def leases():
 def hall_leases():
     if session['admin'] is None:
         abort(403)
-    one_leases = LeasesHalls.query.filter_by(hall_num=1).order_by(LeasesHalls.lease_num.desc())
-    return render_template('hall_leases.html', one_leases=one_leases)
+    leases = LeasesHalls.query.order_by(LeasesHalls.lease_num.desc())
+    return render_template('hall_leases.html', leases=leases)
+
+@app.route("/hall_lease/<acc>", methods=["POST", "GET"])
+def hall_lease(acc):
+    if session['admin'] is None:
+        abort(403)
+    lease = LeasesHalls.query.filter_by(lease_num=acc).first()
+    student = Students.query.filter_by(grade_num=lease.grade_num).first()
+    hroom = HallRooms.query.filter_by(place_num=lease.place_num).first()
+    hall = HallRes.query.filter_by(hall_num=hroom.hall_num).first()
+    return render_template('hall_lease.html', lease=lease, student=student, hroom=hroom, hall=hall)
 
 @app.route("/flat_leases", methods=["POST", "GET"])
 def flat_leases():
     if session['admin'] is None:
         abort(403)
-    one_leases = LeasesFlats.query.filter_by(flat_num=1).order_by(LeasesFlats.lease_num.desc())
-    return render_template('flat_leases.html', one_leases=one_leases)
+    leases = LeasesFlats.query.order_by(LeasesFlats.lease_num.desc())
+    return render_template('flat_leases.html', leases=leases)
+
+@app.route("/flat_lease/<acc>", methods=["POST", "GET"])
+def flat_lease(acc):
+    if session['admin'] is None:
+        abort(403)
+    lease = LeasesFlats.query.filter_by(lease_num=acc).first()
+    student = Students.query.filter_by(grade_num=lease.grade_num).first()
+    froom = FlatsRooms.query.filter_by(place_num=lease.place_num).first()
+    flat = StuFlats.query.filter_by(flat_num=froom.flat_num).first()
+    return render_template('flat_lease.html', lease=lease, student=student, froom=froom, flat=flat)
 
 @app.route("/invoices", methods=["POST", "GET"])
 def invoices():
@@ -882,12 +939,34 @@ def hall_invoices():
     invoices = InvoicesHalls.query.order_by(InvoicesHalls.invoice_num.desc())
     return render_template('hall_invoices.html', invoices=invoices)
 
+@app.route("/hall_invoice/<acc>", methods=["POST", "GET"])
+def hall_invoice(acc):
+    if session['admin'] is None:
+        abort(403)
+    invoice = InvoicesHalls.query.filter_by(invoice_num=acc).first()
+    lease = LeasesHalls.query.filter_by(lease_num=invoice.lease_num).first()
+    student = Students.query.filter_by(grade_num=lease.grade_num).first()
+    hroom = HallRooms.query.filter_by(place_num=lease.place_num).first()
+    hall = HallRes.query.filter_by(hall_num=hroom.hall_num).first()
+    return render_template('hall_invoice.html', invoice=invoice, lease=lease, student=student, hroom=hroom, hall=hall)
+
 @app.route("/flat_invoices", methods=["POST", "GET"])
 def flat_invoices():
     if session['admin'] is None:
         abort(403)
     invoices = InvoicesFlats.query.order_by(InvoicesFlats.invoice_num.desc())
     return render_template('flat_invoices.html', invoices=invoices)
+
+@app.route("/flat_invoice/<acc>", methods=["POST", "GET"])
+def flat_invoice(acc):
+    if session['admin'] is None:
+        abort(403)
+    invoice = InvoicesFlats.query.filter_by(invoice_num=acc).first()
+    lease = LeasesFlats.query.filter_by(lease_num=invoice.lease_num).first()
+    student = Students.query.filter_by(grade_num=lease.grade_num).first()
+    froom = FlatsRooms.query.filter_by(place_num=lease.place_num).first()
+    flat = StuFlats.query.filter_by(flat_num=froom.flat_num).first()
+    return render_template('flat_invoice.html', invoice=invoice, lease=lease, student=student, froom=froom, flat=flat)
 
 @app.route("/inspections", methods=["POST", "GET"])
 def inspections():
@@ -931,6 +1010,15 @@ def inspect_list():
         abort(403)
     inspects = Inspections.query.order_by(Inspections.inspect_num.desc())
     return render_template('inspect_list.html', inspects=inspects)
+
+@app.route("/inspect_info/<acc>", methods=["POST", "GET"])
+def inspect_info(acc):
+    if session['admin'] is None:
+        abort(403)
+    inspect = Inspections.query.filter_by(inspect_num=acc).first()
+    staff = Staffs.query.filter_by(staff_num=inspect.staff_num).first()
+    flat = StuFlats.query.filter_by(flat_num=inspect.flat_num).first()
+    return render_template('inspect_info.html', inspect=inspect, staff=staff, flat=flat)
 
 @app.route("/search", methods=["POST", "GET"])
 def search():
