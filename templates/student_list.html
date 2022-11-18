@@ -74,6 +74,16 @@
     {% if session['admin'] %}
     <h1 align="center">List Of Students</h1>
     <br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{category}}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <table class="tables">
         <thead>
         <tr>
@@ -86,6 +96,7 @@
           <th>Major</th>
           <th>Advisor ID</th>
           <th>Details</th>
+          <th>Edit</th>
         </tr>
         </thead>
         <tbody>
@@ -100,6 +111,7 @@
           <td>{{student.major}}</td>
           <td>{{student.advisor_id}}</td>
           <td><a href="{{ url_for('student_info', acc=student.grade_num) }}">Info <i class="icon-zoom-in"></i></a></td>
+          <td><a href="{{ url_for('student_edit', acc=student.grade_num) }}">Edit <i class="icon-edit"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

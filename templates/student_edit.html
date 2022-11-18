@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Hostel{% endblock %}
+
+{% block content %}
+
+<div class="sidenav">
+  <a href="{{url_for('dashboard')}}"><i class="icon-dashboard"></i> Dashboard</a>
+  <div class='dropdown'>
+    <a href="{{url_for('students')}}"><i class="icon-user"></i> Students</a>
+    <div class="dropdown-content">
+      <a class="active" href="{{url_for('student_list')}}">Student List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('advisors')}}"><i class="icon-user"></i> Advisors</a>
+    <div class="dropdown-content">
+      <a href="{{url_for('advisor_list')}}">Advisor List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('staffs')}}"><i class="icon-user"></i> Staffs</a>
+    <div class="dropdown-content">
+      <a href="{{url_for('staff_list')}}">Staff List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('hall_res')}}"><i class="icon-building"></i> Residences</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_list')}}">Hall List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('hall_rooms')}}"><i class="icon-columns"></i> Hall Rooms</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hroom_list')}}">Hall Room List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('stu_flats')}}"><i class="icon-home"></i> Student Flats</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('flat_list')}}">Flat List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('flat_rooms')}}"><i class="icon-th-large"></i> Flat Rooms</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('froom_list')}}">Flat Room List</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('leases')}}"><i class="icon-file"></i> Leases</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_leases')}}">Hall Leases</a>
+        <a href="{{url_for('flat_leases')}}">Flat Leases</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('invoices')}}"><i class="icon-credit-card"></i> Invoices</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('hall_invoices')}}">Hall Invoices</a>
+        <a href="{{url_for('flat_invoices')}}">Flat Invoices</a>
+    </div>
+  </div>
+  <div class='dropdown'>
+    <a href="{{url_for('inspections')}}"><i class="icon-lightbulb"></i> Inspections</a>
+    <div class="dropdown-content">
+        <a href="{{url_for('inspect_list')}}">Inspect List</a>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="jumbotron">
+    {% if session['admin'] %}
+    <h1 align="center">Edit The Student's Information</h1>
+    <br>
+
+    <form method="POST">
+      {{ form.hidden_tag()}}
+      <div class="form-row">
+        <div class="form-group col-md-4">
+            <strong>{{ form.grade_num.label }}</strong>
+            {{ form.grade_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.fname.label }}</strong>
+            {{ form.fname(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.lname.label }}</strong>
+            {{ form.lname(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-group">
+        <strong>
+          {{ form.address.label }}
+        </strong>
+        {{ form.address(class="form-control") }}
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          {{ form.city(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+          {{ form.province(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            {{ form.postcode(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+            <strong>{{ form.dob.label }}</strong>
+            {{ form.dob(class="form-control", type='date') }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.gender.label }}</strong>
+            {{ form.gender(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.category.label }}</strong>
+            {{ form.category(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <strong>{{ form.nationality.label }}</strong>
+            {{ form.nationality(class="form-control") }}
+        </div>
+        <div class="form-group col-md-6">
+            <strong>{{ form.status.label }}</strong>
+            {{ form.status(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <strong>{{ form.major.label }}</strong>
+            {{ form.major(class="form-control") }}
+        </div>
+        <div class="form-group col-md-6">
+            <strong>{{ form.advisor_id.label }}</strong>
+            {{ form.advisor_id(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-group">
+        <strong>
+          {{ form.special_needs.label }}
+        </strong>
+        {{ form.special_needs(class="form-control") }}
+      </div>
+      <div class="form-group">
+        <strong>
+          {{ form.comments.label }}
+        </strong>
+        {{ form.comments(class="form-control") }}
+      </div>
+      {{ form.submit(class="btn btn-success") }}
+    </form>
+    {% else %}
+      <a href="{{ url_for('login') }}">Login</a>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

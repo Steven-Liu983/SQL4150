@@ -20,13 +20,13 @@
   <div class='dropdown'>
     <a href="{{url_for('staffs')}}"><i class="icon-user"></i> Staffs</a>
     <div class="dropdown-content">
-      <a href="{{url_for('staff_list')}}">Staff List</a>
+      <a class="active" href="{{url_for('staff_list')}}">Staff List</a>
     </div>
   </div>
   <div class='dropdown'>
     <a href="{{url_for('hall_res')}}"><i class="icon-building"></i> Residences</a>
     <div class="dropdown-content">
-        <a class="active" href="{{url_for('hall_list')}}">Hall List</a>
+        <a href="{{url_for('hall_list')}}">Hall List</a>
     </div>
   </div>
   <div class='dropdown'>
@@ -72,46 +72,64 @@
 <div class="main">
   <div class="jumbotron">
     {% if session['admin'] %}
-    <h1 align="center">List Of Residence Halls</h1>
+    <h1 align="center">Edit The Staff's Information</h1>
     <br>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{category}}" role="alert">
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
 
-    <table class="tables">
-        <thead>
-        <tr>
-          <th>Hall Number</th>
-          <th>Name</th>
-          <th>Address</th>
-          <th>Phone Number</th>
-          <th>Staff Number</th>
-          <th>Capacity</th>
-          <th>Details</th>
-          <th>Edit</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for hall in halls %}
-        <tr>
-          <td>{{hall.hall_num}}</td>
-          <td>{{hall.hall_name}}</td>
-          <td>{{hall.hall_address}}</td>
-          <td>{{hall.hall_phone}}</td>
-          <td>{{hall.staff_num}}</td>
-          <td>{{hall.capacity}}</td>
-          <td><a href="{{ url_for('hall_info', acc=hall.hall_num) }}">Info <i class="icon-zoom-in"></i></a></td>
-          <td><a href="{{ url_for('hall_edit', acc=hall.hall_num) }}">Edit <i class="icon-edit"></i></a></td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <form method="POST">
+      {{ form.hidden_tag()}}
+      <div class="form-row">
+        <div class="form-group col-md-4">
+            <strong>{{ form.staff_num.label }}</strong>
+            {{ form.staff_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.fname.label }}</strong>
+            {{ form.fname(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.lname.label }}</strong>
+            {{ form.lname(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-group">
+        <strong>
+          {{ form.address.label }}
+        </strong>
+        {{ form.address(class="form-control") }}
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          {{ form.city(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+          {{ form.province(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            {{ form.postcode(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <strong>{{ form.dob.label }}</strong>
+            {{ form.dob(class="form-control", type='date') }}
+        </div>
+        <div class="form-group col-md-6">
+            <strong>{{ form.gender.label }}</strong>
+            {{ form.gender(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <strong>{{ form.position.label }}</strong>
+            {{ form.position(class="form-control") }}
+        </div>
+        <div class="form-group col-md-6">
+            <strong>{{ form.location.label }}</strong>
+            {{ form.location(class="form-control") }}
+        </div>
+      </div>
+      {{ form.submit(class="btn btn-success") }}
+    </form>
     {% else %}
       <a href="{{ url_for('login') }}">Login</a>
     {% endif %}

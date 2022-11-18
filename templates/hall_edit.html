@@ -71,50 +71,43 @@
 
 <div class="main">
   <div class="jumbotron">
-    {% if session['admin'] %}
-    <h1 align="center">List Of Residence Halls</h1>
+    <h1 align="center">Edit Residence Hall</h1>
     <br>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{category}}" role="alert">
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
 
-    <table class="tables">
-        <thead>
-        <tr>
-          <th>Hall Number</th>
-          <th>Name</th>
-          <th>Address</th>
-          <th>Phone Number</th>
-          <th>Staff Number</th>
-          <th>Capacity</th>
-          <th>Details</th>
-          <th>Edit</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for hall in halls %}
-        <tr>
-          <td>{{hall.hall_num}}</td>
-          <td>{{hall.hall_name}}</td>
-          <td>{{hall.hall_address}}</td>
-          <td>{{hall.hall_phone}}</td>
-          <td>{{hall.staff_num}}</td>
-          <td>{{hall.capacity}}</td>
-          <td><a href="{{ url_for('hall_info', acc=hall.hall_num) }}">Info <i class="icon-zoom-in"></i></a></td>
-          <td><a href="{{ url_for('hall_edit', acc=hall.hall_num) }}">Edit <i class="icon-edit"></i></a></td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-      <a href="{{ url_for('login') }}">Login</a>
-    {% endif %}
+    <form method="POST">
+      {{ form.hidden_tag()}}
+      <div class="form-row">
+        <div class="form-group col-md-4">
+            <strong>{{ form.hall_num.label }}</strong>
+            {{ form.hall_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.hall_name.label }}</strong>
+            {{ form.hall_name(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.phone.label }}</strong>
+            {{ form.phone(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-group">
+        <strong>
+          {{ form.address.label }}
+        </strong>
+        {{ form.address(class="form-control") }}
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <strong>{{ form.staff_num.label }}</strong>
+            {{ form.staff_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-6">
+            <strong>{{ form.capacity.label }}</strong>
+            {{ form.capacity(class="form-control") }}
+        </div>
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+    </form>
   </div>
 </div>
 
