@@ -310,6 +310,25 @@ class StudentForm(FlaskForm):
     advisor_id = IntegerField('Advisor ID', validators=[InputRequired(), NumberRange(min=10000, max=99999)])
     submit = SubmitField('Submit')
 
+class EditStudentForm(FlaskForm):
+    grade_num = IntegerField('Grade 12 Number', render_kw={'readonly': True})
+    fname = StringField('First Name', validators=[InputRequired(), Length(min=2, max=25)])
+    lname = StringField('Last Name', validators=[InputRequired(), Length(min=2, max=25)])
+    address = StringField('Address', validators=[InputRequired(), Length(min=5, max=50)])
+    city = StringField(validators=[InputRequired(), Length(min=2, max=20)])
+    province = StringField(validators=[InputRequired(), Length(min=2, max=20)])
+    postcode = StringField(validators=[InputRequired(), Length(min=2, max=10)])
+    dob = DateTimeLocalField('Date of Birth', format='%Y-%m-%d')
+    gender = SelectField('Gender', choices=['Male', 'Female', 'Transgender'])
+    category = SelectField('Category', choices=['First-Year Undergrad', 'Postgraduate'])
+    nationality = StringField('Nationality', validators=[InputRequired(), Length(min=2, max=25)])
+    special_needs = TextAreaField('Special Needs')
+    comments = TextAreaField('Comments')
+    status = StringField('Status', render_kw={'readonly': True})
+    major = StringField('Major', validators=[InputRequired(), Length(min=2, max=20)])
+    advisor_id = IntegerField('Advisor ID', render_kw={'readonly': True})
+    submit = SubmitField('Update')
+
 class AdvisorForm(FlaskForm):
     advisor_id = IntegerField('Advisor ID', validators=[InputRequired(), NumberRange(min=10000, max=99999)])
     department = SelectField('Department', choices=['Arts', 'Economics', 'Education', 'Engineering', 'Humanities', 'Law', 'Music', 'Philosophy', 'Science'])
@@ -317,6 +336,14 @@ class AdvisorForm(FlaskForm):
     room_num = IntegerField('Room Number', validators=[InputRequired(), NumberRange(min=100, max=9999)])
     staff_num = IntegerField('Staff Number', validators=[InputRequired(), NumberRange(min=100000, max=999999)])
     submit = SubmitField('Add Advisor')
+
+class EditAdvisorForm(FlaskForm):
+    advisor_id = IntegerField('Advisor ID', render_kw={'readonly': True})
+    department = SelectField('Department', choices=['Arts', 'Economics', 'Education', 'Engineering', 'Humanities', 'Law', 'Music', 'Philosophy', 'Science'])
+    phone = IntegerField('Internal Telephone Number', validators=[InputRequired()])
+    room_num = IntegerField('Room Number', validators=[InputRequired(), NumberRange(min=100, max=9999)])
+    staff_num = IntegerField('Staff Number', render_kw={'readonly': True})
+    submit = SubmitField('Update')
 
 class HallResForm(FlaskForm):
     hall_num = IntegerField('Hall Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
@@ -326,6 +353,15 @@ class HallResForm(FlaskForm):
     staff_num = IntegerField('Staff Number (Manager)', validators=[InputRequired(), NumberRange(min=100000, max=999999)])
     capacity = IntegerField('Capacity', validators=[InputRequired(), NumberRange(min=1, max=99)])
     submit = SubmitField('Add Hall')
+
+class EditHallResForm(FlaskForm):
+    hall_num = IntegerField('Hall Number', render_kw={'readonly': True})
+    hall_name = StringField('Hall Name', validators=[InputRequired(), Length(min=2, max=25)])
+    address = StringField('Address', validators=[InputRequired(), Length(min=2, max=50)])
+    phone = IntegerField('Telephone Number', validators=[InputRequired()])
+    staff_num = IntegerField('Staff Number (Manager)', render_kw={'readonly': True})
+    capacity = IntegerField('Capacity', render_kw={'readonly': True})
+    submit = SubmitField('Update')
 
 class HallRoomsForm(FlaskForm):
     place_num = IntegerField('Place Number', validators=[InputRequired(), NumberRange(min=101, max=199)])
@@ -394,23 +430,20 @@ class StaffForm(FlaskForm):
     submit = SubmitField('Add Staff')
 
 class EditStaffForm(FlaskForm):
-    fname = StringField('First Name')
-    lname = StringField('Last Name')
-    address = StringField('Address')
-    city = StringField()
-    province = StringField()
-    postcode = StringField()
+    staff_num = IntegerField('Staff Number', render_kw={'readonly': True})
+    fname = StringField('First Name', validators=[InputRequired(), Length(min=2, max=25)])
+    lname = StringField('Last Name', validators=[InputRequired(), Length(min=2, max=25)])
+    address = StringField('Address', validators=[InputRequired(), Length(min=5, max=50)])
+    city = StringField(validators=[InputRequired(), Length(min=2, max=20)])
+    province = StringField(validators=[InputRequired(), Length(min=2, max=20)])
+    postcode = StringField(validators=[InputRequired(), Length(min=2, max=10)])
     dob = DateTimeLocalField('Date of Birth', format='%Y-%m-%d')
     gender = SelectField('Gender', choices=['Male', 'Female', 'Transgender'])
-    position = SelectField('Position', choices=['Advisor', 'Flat Inspector', 'Hall Manager', 'Office Assistant'])
+    position = StringField('Position', render_kw={'readonly': True})
     location = SelectField('Location', choices=['Hostel Office', 'Hall', 'Flats'])
-    submit = SubmitField('Edit Staff')
+    submit = SubmitField('Update')
 
-class SearchForm(FlaskForm):
-    search_num = IntegerField('Search')
-    search_type = SelectField('Type', choices=['Student Number', 'Advisor_ID', 'Staff Number'])
-    submit = SubmitField('Search')
-
+# Main content
 @app.route("/")
 def index():
     session['admin'] = None
@@ -505,6 +538,49 @@ def student_info(acc):
     staff = Staffs.query.filter_by(staff_num=advisor.staff_num).first()
     return render_template('student_info.html', student=student, staff=staff)
 
+@app.route("/student_edit/<acc>", methods=["POST", "GET"])
+def student_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    student = Students.query.filter_by(grade_num=acc).first()
+    form = EditStudentForm()
+    form.grade_num.data = student.grade_num
+    form.fname.data = student.fname
+    form.lname.data = student.lname
+    form.address.data = student.address
+    form.city.data = student.city
+    form.province.data = student.province
+    form.postcode.data = student.postcode
+    form.dob.data = student.dob
+    form.gender.data = student.gender
+    form.category.data = student.category
+    form.nationality.data = student.nationality
+    form.status.data = student.status
+    form.major.data = student.major
+    form.advisor_id.data = student.advisor_id
+    form.special_needs.data = student.special_needs
+    form.comments.data = student.comments
+
+    if form.validate_on_submit():
+        form = EditStudentForm()
+        student.fname = form.fname.data
+        student.lname = form.lname.data
+        student.address = form.address.data
+        student.city = form.city.data
+        student.province = form.province.data
+        student.postcode = form.postcode.data
+        student.dob = form.dob.data
+        student.gender = form.gender.data
+        student.category = form.category.data
+        student.nationality = form.nationality.data
+        student.major = form.major.data
+        student.special_needs = form.special_needs.data
+        student.comments = form.comments.data
+        db.session.commit()
+        flash('The student\'s information has been updated', 'success')
+        return redirect(url_for('student_list'))
+    return render_template('student_edit.html', form=form)
+
 @app.route("/advisors", methods=["POST", "GET"])
 def advisors():
     if session['admin'] is None:
@@ -555,6 +631,28 @@ def advisor_info(acc):
     staff = Staffs.query.filter_by(staff_num=advisor.staff_num).first()
     return render_template('advisor_info.html', advisor=advisor, staff=staff)
 
+@app.route("/advisor_edit/<acc>", methods=["POST", "GET"])
+def advisor_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    advisor = Advisors.query.filter_by(advisor_id=acc).first()
+    form = EditAdvisorForm()
+    form.advisor_id.data = advisor.advisor_id
+    form.department.data = advisor.department
+    form.phone.data = int(advisor.phone)
+    form.room_num.data = advisor.room_num
+    form.staff_num.data = advisor.staff_num
+
+    if form.validate_on_submit():
+        form = EditAdvisorForm()
+        advisor.department = form.department.data
+        advisor.phone = str(form.phone.data)
+        advisor.room_num = form.room_num.data
+        db.session.commit()
+        flash('The advisor\'s information has been updated', 'success')
+        return redirect(url_for('advisor_list'))
+    return render_template('advisor_edit.html', form=form)
+
 @app.route("/staffs", methods=["POST", "GET"])
 def staffs():
     if session['admin'] is None:
@@ -598,6 +696,40 @@ def staff_info(acc):
         abort(403)
     staff = Staffs.query.filter_by(staff_num=acc).first()
     return render_template('staff_info.html', staff=staff)
+
+@app.route("/staff_edit/<acc>", methods=["POST", "GET"])
+def staff_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    staff = Staffs.query.filter_by(staff_num=acc).first()
+    form = EditStaffForm()
+    form.staff_num.data = staff.staff_num
+    form.fname.data = staff.fname
+    form.lname.data = staff.lname
+    form.address.data = staff.address
+    form.city.data = staff.city
+    form.province.data = staff.province
+    form.postcode.data = staff.postcode
+    form.dob.data = staff.dob
+    form.gender.data = staff.gender
+    form.position.data = staff.position
+    form.location.data = staff.location
+
+    if form.validate_on_submit():
+        form = EditStaffForm()
+        staff.fname = form.fname.data
+        staff.lname = form.lname.data
+        staff.address = form.address.data
+        staff.city = form.city.data
+        staff.province = form.province.data
+        staff.postcode = form.postcode.data
+        staff.dob = form.dob.data
+        staff.gender = form.gender.data
+        staff.location = form.location.data
+        db.session.commit()
+        flash('The staff\'s information has been updated', 'success')
+        return redirect(url_for('staff_list'))
+    return render_template('staff_edit.html', form=form)
 
 @app.route("/hall_res", methods=["POST", "GET"])
 def hall_res():
@@ -649,6 +781,29 @@ def hall_info(acc):
     hall = HallRes.query.filter_by(hall_num=acc).first()
     staff = Staffs.query.filter_by(staff_num=hall.staff_num).first()
     return render_template('hall_info.html', hall=hall, staff=staff)
+
+@app.route("/hall_edit/<acc>", methods=["POST", "GET"])
+def hall_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    hall = HallRes.query.filter_by(hall_num=acc).first()
+    form = EditHallResForm()
+    form.hall_num.data = hall.hall_num
+    form.hall_name.data = hall.hall_name
+    form.address.data = hall.hall_address
+    form.phone.data = int(hall.hall_phone)
+    form.staff_num.data = hall.staff_num
+    form.capacity.data = hall.capacity
+
+    if form.validate_on_submit():
+        form = EditHallResForm()
+        hall.hall_name = form.hall_name.data
+        hall.hall_address = form.address.data
+        hall.hall_phone = str(form.phone.data)
+        db.session.commit()
+        flash('The information of the Residence Hall has been updated', 'success')
+        return redirect(url_for('hall_list'))
+    return render_template('hall_edit.html', form=form)
 
 @app.route("/hall_rooms", methods=["POST", "GET"])
 def hall_rooms():
@@ -1019,20 +1174,6 @@ def inspect_info(acc):
     staff = Staffs.query.filter_by(staff_num=inspect.staff_num).first()
     flat = StuFlats.query.filter_by(flat_num=inspect.flat_num).first()
     return render_template('inspect_info.html', inspect=inspect, staff=staff, flat=flat)
-
-@app.route("/search", methods=["POST", "GET"])
-def search():
-    form = SearchForm()
-    return render_template('search.html', form=form)
-
-@app.route('/staff_page')
-def staff_page():
-    return render_template('staff_page.html')
-
-@app.route("/edit_staff", methods=["POST", "GET"])
-def edit_staff():
-    form = EditStaffForm()
-    return render_template('edit_staff.html', form=form)
 
 @app.route('/logout', methods=['GET'])
 def logout():
