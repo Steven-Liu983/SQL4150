@@ -2,7 +2,7 @@ from flask import Flask, flash, session, abort, render_template, request, url_fo
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from sqlalchemy import Column, ForeignKey, Integer, Table
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import StringField, IntegerField, SubmitField, FloatField, PasswordField, SelectField, TextAreaField, DateTimeLocalField
 from wtforms.validators import InputRequired, EqualTo, Length, ValidationError, NumberRange
@@ -632,6 +632,20 @@ def student_edit(acc):
         return redirect(url_for('student_list'))
     return render_template('student_edit.html', form=form)
 
+@app.route("/student_del/<acc>", methods=["POST", "GET"])
+def student_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    student = Students.query.filter_by(grade_num=acc).first()
+    try:
+        db.session.delete(student)
+        db.session.commit()
+        flash('The record of the student has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the student cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('student_list'))
+
 @app.route("/advisors", methods=["POST", "GET"])
 def advisors():
     if session['admin'] is None:
@@ -703,6 +717,20 @@ def advisor_edit(acc):
         flash('The advisor\'s information has been updated', 'success')
         return redirect(url_for('advisor_list'))
     return render_template('advisor_edit.html', form=form)
+
+@app.route("/advisor_del/<acc>", methods=["POST", "GET"])
+def advisor_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    advisor = Advisors.query.filter_by(advisor_id=acc).first()
+    try:
+        db.session.delete(advisor)
+        db.session.commit()
+        flash('The record of the advisor has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the advisor cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('advisor_list'))
 
 @app.route("/staffs", methods=["POST", "GET"])
 def staffs():
@@ -782,6 +810,20 @@ def staff_edit(acc):
         return redirect(url_for('staff_list'))
     return render_template('staff_edit.html', form=form)
 
+@app.route("/staff_del/<acc>", methods=["POST", "GET"])
+def staff_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    staff = Staffs.query.filter_by(staff_num=acc).first()
+    try:
+        db.session.delete(staff)
+        db.session.commit()
+        flash('The record of the staff has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the staff cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('staff_list'))
+
 @app.route("/hall_res", methods=["POST", "GET"])
 def hall_res():
     if session['admin'] is None:
@@ -856,6 +898,20 @@ def hall_edit(acc):
         return redirect(url_for('hall_list'))
     return render_template('hall_edit.html', form=form)
 
+@app.route("/hall_del/<acc>", methods=["POST", "GET"])
+def hall_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    hall = HallRes.query.filter_by(hall_num=acc).first()
+    try:
+        db.session.delete(hall)
+        db.session.commit()
+        flash('The record of the Residence Hall has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the Residence Hall cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('hall_list'))
+
 @app.route("/hall_rooms", methods=["POST", "GET"])
 def hall_rooms():
     if session['admin'] is None:
@@ -923,6 +979,20 @@ def hroom_edit(acc):
         return redirect(url_for('hroom_list'))
     return render_template('hroom_edit.html', form=form)
 
+@app.route("/hroom_del/<acc>", methods=["POST", "GET"])
+def hroom_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    hroom = HallRooms.query.filter_by(place_num=acc).first()
+    try:
+        db.session.delete(hroom)
+        db.session.commit()
+        flash('The record of the Residence Hall room has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the Residence Hall room cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('hroom_list'))
+
 @app.route("/stu_flats", methods=["POST", "GET"])
 def stu_flats():
     if session['admin'] is None:
@@ -976,6 +1046,20 @@ def flat_edit(acc):
         flash('The information of the Student Flat has been updated', 'success')
         return redirect(url_for('flat_list'))
     return render_template('flat_edit.html', form=form)
+
+@app.route("/flat_del/<acc>", methods=["POST", "GET"])
+def flat_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    flat = StuFlats.query.filter_by(flat_num=acc).first()
+    try:
+        db.session.delete(flat)
+        db.session.commit()
+        flash('The record of the Student Flat has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the Student Flat cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('flat_list'))
 
 @app.route("/flat_rooms", methods=["POST", "GET"])
 def flat_rooms():
@@ -1044,6 +1128,20 @@ def froom_edit(acc):
         flash('The information of the Student Flat room has been updated', 'success')
         return redirect(url_for('froom_list'))
     return render_template('froom_edit.html', form=form)
+
+@app.route("/froom_del/<acc>", methods=["POST", "GET"])
+def froom_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    froom = FlatsRooms.query.filter_by(place_num=acc).first()
+    try:
+        db.session.delete(froom)
+        db.session.commit()
+        flash('The record of the Student Flat room has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the Student Flat room cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('froom_list'))
 
 @app.route("/leases", methods=["POST", "GET"])
 def leases():
@@ -1148,6 +1246,20 @@ def hlease_edit(acc):
         return redirect(url_for('hall_leases'))
     return render_template('hlease_edit.html', form=form)
 
+@app.route("/hlease_del/<acc>", methods=["POST", "GET"])
+def hlease_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    lease = LeasesHalls.query.filter_by(lease_num=acc).first()
+    try:
+        db.session.delete(lease)
+        db.session.commit()
+        flash('The record of the Residence Hall lease has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the Residence Hall lease cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('hall_leases'))
+
 @app.route("/flat_leases", methods=["POST", "GET"])
 def flat_leases():
     if session['admin'] is None:
@@ -1187,6 +1299,20 @@ def flease_edit(acc):
         flash('The information of the Student Flat lease has been updated', 'success')
         return redirect(url_for('flat_leases'))
     return render_template('flease_edit.html', form=form)
+
+@app.route("/flease_del/<acc>", methods=["POST", "GET"])
+def flease_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    lease = LeasesFlats.query.filter_by(lease_num=acc).first()
+    try:
+        db.session.delete(lease)
+        db.session.commit()
+        flash('The record of the Student Flat lease has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the Student Flat lease cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('flat_leases'))
 
 @app.route("/invoices", methods=["POST", "GET"])
 def invoices():
@@ -1289,6 +1415,20 @@ def hinvoice_edit(acc):
         return redirect(url_for('hall_invoices'))
     return render_template('hinvoice_edit.html', form=form)
 
+@app.route("/hinvoice_del/<acc>", methods=["POST", "GET"])
+def hinvoice_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    invoice = InvoicesHalls.query.filter_by(invoice_num=acc).first()
+    try:
+        db.session.delete(invoice)
+        db.session.commit()
+        flash('The record of the Residence Hall invoice has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the Residence Hall invoice cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('hall_invoices'))
+
 @app.route("/flat_invoices", methods=["POST", "GET"])
 def flat_invoices():
     if session['admin'] is None:
@@ -1334,6 +1474,20 @@ def finvoice_edit(acc):
         flash('The information of the Student Flat invoice has been updated', 'success')
         return redirect(url_for('flat_invoices'))
     return render_template('finvoice_edit.html', form=form)
+
+@app.route("/finvoice_del/<acc>", methods=["POST", "GET"])
+def finvoice_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    invoice = InvoicesFlats.query.filter_by(invoice_num=acc).first()
+    try:
+        db.session.delete(invoice)
+        db.session.commit()
+        flash('The record of the Student Flat invoice has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the Student Flat invoice cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('flat_invoices'))
 
 @app.route("/inspections", methods=["POST", "GET"])
 def inspections():
@@ -1409,6 +1563,20 @@ def inspect_edit(acc):
         flash('The information of the Student Flat inspection has been updated', 'success')
         return redirect(url_for('inspect_list'))
     return render_template('inspect_edit.html', form=form)
+
+@app.route("/inspect_del/<acc>", methods=["POST", "GET"])
+def inspect_del(acc):
+    if session['admin'] is None:
+        abort(403)
+    inspect = Inspections.query.filter_by(inspect_num=acc).first()
+    try:
+        db.session.delete(inspect)
+        db.session.commit()
+        flash('The record of the Student Flat inspection has been deleted', 'success')
+    except IntegrityError and OperationalError:
+        db.session.rollback()
+        flash('The record of the Student Flat inspection cannot be deleted due to foreign key constraint', 'danger')
+    return redirect(url_for('inspect_list'))
 
 @app.route('/logout', methods=['GET'])
 def logout():
