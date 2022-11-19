@@ -97,6 +97,7 @@
           <th>Advisor ID</th>
           <th>Details</th>
           <th>Edit</th>
+          <th>Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -112,6 +113,7 @@
           <td>{{student.advisor_id}}</td>
           <td><a href="{{ url_for('student_info', acc=student.grade_num) }}">Info <i class="icon-zoom-in"></i></a></td>
           <td><a href="{{ url_for('student_edit', acc=student.grade_num) }}">Edit <i class="icon-edit"></i></a></td>
+          <td><a href="{{ url_for('student_del', acc=student.grade_num) }}">Delete <i class="icon-trash"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

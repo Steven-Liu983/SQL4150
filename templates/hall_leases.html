@@ -95,6 +95,7 @@
           <th>Lease End</th>
           <th>Details</th>
           <th>Edit</th>
+          <th>Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -108,6 +109,7 @@
           <td>{{lease.lease_end}}</td>
           <td><a href="{{ url_for('hall_lease', acc=lease.lease_num) }}">Info <i class="icon-zoom-in"></i></a></td>
           <td><a href="{{ url_for('hlease_edit', acc=lease.lease_num) }}">Edit <i class="icon-edit"></i></a></td>
+          <td><a href="{{ url_for('hlease_del', acc=lease.lease_num) }}">Delete <i class="icon-trash"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

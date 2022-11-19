@@ -97,6 +97,7 @@
           <th>Second Reminder</th>
           <th>Details</th>
           <th>Edit</th>
+          <th>Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -112,6 +113,7 @@
           <td>{{invoice.second_reminder}}</td>
           <td><a href="{{ url_for('hall_invoice', acc=invoice.invoice_num) }}">Info <i class="icon-zoom-in"></i></a></td>
           <td><a href="{{ url_for('hinvoice_edit', acc=invoice.invoice_num) }}">Edit <i class="icon-edit"></i></a></td>
+          <td><a href="{{ url_for('hinvoice_del', acc=invoice.invoice_num) }}">Delete <i class="icon-trash"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

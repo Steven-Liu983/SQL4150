@@ -94,6 +94,7 @@
           <th>Staff Number</th>
           <th>Details</th>
           <th>Edit</th>
+          <th>Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -106,6 +107,7 @@
           <td>{{advisor.staff_num}}</td>
           <td><a href="{{ url_for('advisor_info', acc=advisor.advisor_id) }}">Info <i class="icon-zoom-in"></i></a></td>
           <td><a href="{{ url_for('advisor_edit', acc=advisor.advisor_id) }}">Edit <i class="icon-edit"></i></a></td>
+          <td><a href="{{ url_for('advisor_del', acc=advisor.advisor_id) }}">Delete <i class="icon-trash"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

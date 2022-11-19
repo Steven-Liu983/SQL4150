@@ -94,6 +94,7 @@
           <th>Satisfied</th>
           <th>Details</th>
           <th>Edit</th>
+          <th>Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -106,6 +107,7 @@
           <td>{{inspect.satisfy}}</td>
           <td><a href="{{ url_for('inspect_info', acc=inspect.inspect_num) }}">Info <i class="icon-zoom-in"></i></a></td>
           <td><a href="{{ url_for('inspect_edit', acc=inspect.inspect_num) }}">Edit <i class="icon-edit"></i></a></td>
+          <td><a href="{{ url_for('inspect_del', acc=inspect.inspect_num) }}">Delete <i class="icon-trash"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

@@ -94,6 +94,7 @@
           <th>Capacity</th>
           <th>Details</th>
           <th>Edit</th>
+          <th>Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -105,6 +106,7 @@
           <td>{{one_room.capacity}}</td>
           <td><a href="{{ url_for('hroom_info', acc=one_room.place_num) }}">Info <i class="icon-zoom-in"></i></a></td>
           <td><a href="{{ url_for('hroom_edit', acc=one_room.place_num) }}">Edit <i class="icon-edit"></i></a></td>
+          <td><a href="{{ url_for('hroom_del', acc=one_room.place_num) }}">Delete <i class="icon-trash"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

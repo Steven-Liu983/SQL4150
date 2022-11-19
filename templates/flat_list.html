@@ -92,6 +92,7 @@
           <th>Available Rooms</th>
           <th>Details</th>
           <th>Edit</th>
+          <th>Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -102,6 +103,7 @@
           <td>{{flat.avail_room}}</td>
           <td><a href="{{ url_for('flat_info', acc=flat.flat_num) }}">Info <i class="icon-zoom-in"></i></a></td>
           <td><a href="{{ url_for('flat_edit', acc=flat.flat_num) }}">Edit <i class="icon-edit"></i></a></td>
+          <td><a href="{{ url_for('flat_del', acc=flat.flat_num) }}">Delete <i class="icon-trash"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

@@ -95,6 +95,7 @@
           <th>Capacity</th>
           <th>Details</th>
           <th>Edit</th>
+          <th>Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -108,6 +109,7 @@
           <td>{{hall.capacity}}</td>
           <td><a href="{{ url_for('hall_info', acc=hall.hall_num) }}">Info <i class="icon-zoom-in"></i></a></td>
           <td><a href="{{ url_for('hall_edit', acc=hall.hall_num) }}">Edit <i class="icon-edit"></i></a></td>
+          <td><a href="{{ url_for('hall_del', acc=hall.hall_num) }}">Delete <i class="icon-trash"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>
