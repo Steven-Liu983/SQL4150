@@ -504,7 +504,7 @@ def index():
 def aboutus():
     return render_template('aboutus.html')
 
-@app.route("/login", methods=["POST", "GET"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if db.session.query(Admin).filter_by(email='admin@email.com').count() < 1:
@@ -534,7 +534,7 @@ def dashboard():
         abort(403)
     return render_template('dashboard.html')
 
-@app.route("/students", methods=["POST", "GET"])
+@app.route("/students", methods=["GET", "POST"])
 def students():
     if session['admin'] is None:
         abort(403)
@@ -573,14 +573,14 @@ def students():
             return redirect(url_for('students'))
     return render_template('students.html', form=form)
 
-@app.route("/student_list", methods=["POST", "GET"])
+@app.route("/student_list", methods=["GET", "POST"])
 def student_list():
     if session['admin'] is None:
         abort(403)
     students = Students.query.order_by(Students.grade_num.desc())
     return render_template('student_list.html', students=students)
 
-@app.route("/student_info/<acc>", methods=["POST", "GET"])
+@app.route("/student_info/<acc>", methods=["GET", "POST"])
 def student_info(acc):
     if session['admin'] is None:
         abort(403)
@@ -589,7 +589,7 @@ def student_info(acc):
     staff = Staffs.query.filter_by(staff_num=advisor.staff_num).first()
     return render_template('student_info.html', student=student, staff=staff)
 
-@app.route("/student_edit/<acc>", methods=["POST", "GET"])
+@app.route("/student_edit/<acc>", methods=["GET", "POST"])
 def student_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -632,7 +632,7 @@ def student_edit(acc):
         return redirect(url_for('student_list'))
     return render_template('student_edit.html', form=form)
 
-@app.route("/student_del/<acc>", methods=["POST", "GET"])
+@app.route("/student_del/<acc>", methods=["GET", "POST"])
 def student_del(acc):
     if session['admin'] is None:
         abort(403)
@@ -646,7 +646,7 @@ def student_del(acc):
         flash('The record of the student cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('student_list'))
 
-@app.route("/advisors", methods=["POST", "GET"])
+@app.route("/advisors", methods=["GET", "POST"])
 def advisors():
     if session['admin'] is None:
         abort(403)
@@ -681,14 +681,14 @@ def advisors():
             return redirect(url_for('advisors'))
     return render_template('advisors.html', form=form)
 
-@app.route("/advisor_list", methods=["POST", "GET"])
+@app.route("/advisor_list", methods=["GET", "POST"])
 def advisor_list():
     if session['admin'] is None:
         abort(403)
     advisors = Advisors.query.order_by(Advisors.advisor_id.desc())
     return render_template('advisor_list.html', advisors=advisors)
 
-@app.route("/advisor_info/<acc>", methods=["POST", "GET"])
+@app.route("/advisor_info/<acc>", methods=["GET", "POST"])
 def advisor_info(acc):
     if session['admin'] is None:
         abort(403)
@@ -696,7 +696,7 @@ def advisor_info(acc):
     staff = Staffs.query.filter_by(staff_num=advisor.staff_num).first()
     return render_template('advisor_info.html', advisor=advisor, staff=staff)
 
-@app.route("/advisor_edit/<acc>", methods=["POST", "GET"])
+@app.route("/advisor_edit/<acc>", methods=["GET", "POST"])
 def advisor_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -718,7 +718,7 @@ def advisor_edit(acc):
         return redirect(url_for('advisor_list'))
     return render_template('advisor_edit.html', form=form)
 
-@app.route("/advisor_del/<acc>", methods=["POST", "GET"])
+@app.route("/advisor_del/<acc>", methods=["GET", "POST"])
 def advisor_del(acc):
     if session['admin'] is None:
         abort(403)
@@ -732,7 +732,7 @@ def advisor_del(acc):
         flash('The record of the advisor cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('advisor_list'))
 
-@app.route("/staffs", methods=["POST", "GET"])
+@app.route("/staffs", methods=["GET", "POST"])
 def staffs():
     if session['admin'] is None:
         abort(403)
@@ -762,21 +762,21 @@ def staffs():
             return redirect(url_for('staffs'))
     return render_template('staffs.html', form=form)
 
-@app.route("/staff_list", methods=["POST", "GET"])
+@app.route("/staff_list", methods=["GET", "POST"])
 def staff_list():
     if session['admin'] is None:
         abort(403)
     staffs = Staffs.query.order_by(Staffs.staff_num.desc())
     return render_template('staff_list.html', staffs=staffs)
 
-@app.route("/staff_info/<acc>", methods=["POST", "GET"])
+@app.route("/staff_info/<acc>", methods=["GET", "POST"])
 def staff_info(acc):
     if session['admin'] is None:
         abort(403)
     staff = Staffs.query.filter_by(staff_num=acc).first()
     return render_template('staff_info.html', staff=staff)
 
-@app.route("/staff_edit/<acc>", methods=["POST", "GET"])
+@app.route("/staff_edit/<acc>", methods=["GET", "POST"])
 def staff_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -810,7 +810,7 @@ def staff_edit(acc):
         return redirect(url_for('staff_list'))
     return render_template('staff_edit.html', form=form)
 
-@app.route("/staff_del/<acc>", methods=["POST", "GET"])
+@app.route("/staff_del/<acc>", methods=["GET", "POST"])
 def staff_del(acc):
     if session['admin'] is None:
         abort(403)
@@ -824,7 +824,7 @@ def staff_del(acc):
         flash('The record of the staff cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('staff_list'))
 
-@app.route("/hall_res", methods=["POST", "GET"])
+@app.route("/hall_res", methods=["GET", "POST"])
 def hall_res():
     if session['admin'] is None:
         abort(403)
@@ -860,14 +860,14 @@ def hall_res():
             return redirect(url_for('hall_res'))
     return render_template('hall_res.html', form=form)
 
-@app.route("/hall_list", methods=["POST", "GET"])
+@app.route("/hall_list", methods=["GET", "POST"])
 def hall_list():
     if session['admin'] is None:
         abort(403)
     halls = HallRes.query.order_by(HallRes.hall_num.desc())
     return render_template('hall_list.html', halls=halls)
 
-@app.route("/hall_info/<acc>", methods=["POST", "GET"])
+@app.route("/hall_info/<acc>", methods=["GET", "POST"])
 def hall_info(acc):
     if session['admin'] is None:
         abort(403)
@@ -875,7 +875,7 @@ def hall_info(acc):
     staff = Staffs.query.filter_by(staff_num=hall.staff_num).first()
     return render_template('hall_info.html', hall=hall, staff=staff)
 
-@app.route("/hall_edit/<acc>", methods=["POST", "GET"])
+@app.route("/hall_edit/<acc>", methods=["GET", "POST"])
 def hall_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -898,7 +898,7 @@ def hall_edit(acc):
         return redirect(url_for('hall_list'))
     return render_template('hall_edit.html', form=form)
 
-@app.route("/hall_del/<acc>", methods=["POST", "GET"])
+@app.route("/hall_del/<acc>", methods=["GET", "POST"])
 def hall_del(acc):
     if session['admin'] is None:
         abort(403)
@@ -912,7 +912,7 @@ def hall_del(acc):
         flash('The record of the Residence Hall cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('hall_list'))
 
-@app.route("/hall_rooms", methods=["POST", "GET"])
+@app.route("/hall_rooms", methods=["GET", "POST"])
 def hall_rooms():
     if session['admin'] is None:
         abort(403)
@@ -944,14 +944,14 @@ def hall_rooms():
             return redirect(url_for('hall_rooms'))
     return render_template('hall_rooms.html', form=form)
 
-@app.route("/hroom_list", methods=["POST", "GET"])
+@app.route("/hroom_list", methods=["GET", "POST"])
 def hroom_list():
     if session['admin'] is None:
         abort(403)
     one_rooms = HallRooms.query.filter_by(hall_num=1).order_by(HallRooms.place_num.desc())
     return render_template('hroom_list.html', one_rooms=one_rooms)
 
-@app.route("/hroom_info/<acc>", methods=["POST", "GET"])
+@app.route("/hroom_info/<acc>", methods=["GET", "POST"])
 def hroom_info(acc):
     if session['admin'] is None:
         abort(403)
@@ -959,7 +959,7 @@ def hroom_info(acc):
     hall = HallRes.query.filter_by(hall_num=hroom.hall_num).first()
     return render_template('hroom_info.html', hroom=hroom, hall=hall)
 
-@app.route("/hroom_edit/<acc>", methods=["POST", "GET"])
+@app.route("/hroom_edit/<acc>", methods=["GET", "POST"])
 def hroom_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -967,7 +967,7 @@ def hroom_edit(acc):
     form = EditHallRoomsForm()
     form.place_num.data = hroom.place_num
     form.room_num.data = hroom.room_num
-    form.rent.data = hroom.monthly_rent
+    form.rent.data = "{:.2f}".format(hroom.monthly_rent)
     form.hall_num.data = hroom.hall_num
 
     if form.validate_on_submit():
@@ -979,13 +979,15 @@ def hroom_edit(acc):
         return redirect(url_for('hroom_list'))
     return render_template('hroom_edit.html', form=form)
 
-@app.route("/hroom_del/<acc>", methods=["POST", "GET"])
+@app.route("/hroom_del/<acc>", methods=["GET", "POST"])
 def hroom_del(acc):
     if session['admin'] is None:
         abort(403)
     hroom = HallRooms.query.filter_by(place_num=acc).first()
+    hall = HallRes.query.filter_by(hall_num=hroom.hall_num).first()
     try:
         db.session.delete(hroom)
+        hall.capacity = hall.capacity + 1
         db.session.commit()
         flash('The record of the Residence Hall room has been deleted', 'success')
     except IntegrityError and OperationalError:
@@ -993,7 +995,7 @@ def hroom_del(acc):
         flash('The record of the Residence Hall room cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('hroom_list'))
 
-@app.route("/stu_flats", methods=["POST", "GET"])
+@app.route("/stu_flats", methods=["GET", "POST"])
 def stu_flats():
     if session['admin'] is None:
         abort(403)
@@ -1015,21 +1017,21 @@ def stu_flats():
             return redirect(url_for('stu_flats'))
     return render_template('stu_flats.html', form=form)
 
-@app.route("/flat_list", methods=["POST", "GET"])
+@app.route("/flat_list", methods=["GET", "POST"])
 def flat_list():
     if session['admin'] is None:
         abort(403)
     flats = StuFlats.query.order_by(StuFlats.flat_num.desc())
     return render_template('flat_list.html', flats=flats)
 
-@app.route("/flat_info/<acc>", methods=["POST", "GET"])
+@app.route("/flat_info/<acc>", methods=["GET", "POST"])
 def flat_info(acc):
     if session['admin'] is None:
         abort(403)
     flat = StuFlats.query.filter_by(flat_num=acc).first()
     return render_template('flat_info.html', flat=flat)
 
-@app.route("/flat_edit/<acc>", methods=["POST", "GET"])
+@app.route("/flat_edit/<acc>", methods=["GET", "POST"])
 def flat_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -1037,7 +1039,7 @@ def flat_edit(acc):
     form = EditStuFlatsForm()
     form.flat_num.data = flat.flat_num
     form.address.data = flat.flat_address
-    form.avail_room.data = flat. avail_room
+    form.avail_room.data = flat.avail_room
 
     if form.validate_on_submit():
         form = EditStuFlatsForm()
@@ -1047,7 +1049,7 @@ def flat_edit(acc):
         return redirect(url_for('flat_list'))
     return render_template('flat_edit.html', form=form)
 
-@app.route("/flat_del/<acc>", methods=["POST", "GET"])
+@app.route("/flat_del/<acc>", methods=["GET", "POST"])
 def flat_del(acc):
     if session['admin'] is None:
         abort(403)
@@ -1061,7 +1063,7 @@ def flat_del(acc):
         flash('The record of the Student Flat cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('flat_list'))
 
-@app.route("/flat_rooms", methods=["POST", "GET"])
+@app.route("/flat_rooms", methods=["GET", "POST"])
 def flat_rooms():
     if session['admin'] is None:
         abort(403)
@@ -1093,14 +1095,14 @@ def flat_rooms():
             return redirect(url_for('flat_rooms'))
     return render_template('flat_rooms.html', form=form)
 
-@app.route("/froom_list", methods=["POST", "GET"])
+@app.route("/froom_list", methods=["GET", "POST"])
 def froom_list():
     if session['admin'] is None:
         abort(403)
     one_rooms = FlatsRooms.query.filter_by(flat_num=1).order_by(FlatsRooms.place_num.desc())
     return render_template('froom_list.html', one_rooms=one_rooms)
 
-@app.route("/froom_info/<acc>", methods=["POST", "GET"])
+@app.route("/froom_info/<acc>", methods=["GET", "POST"])
 def froom_info(acc):
     if session['admin'] is None:
         abort(403)
@@ -1108,7 +1110,7 @@ def froom_info(acc):
     flat = StuFlats.query.filter_by(flat_num=froom.flat_num).first()
     return render_template('froom_info.html', froom=froom, flat=flat)
 
-@app.route("/froom_edit/<acc>", methods=["POST", "GET"])
+@app.route("/froom_edit/<acc>", methods=["GET", "POST"])
 def froom_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -1116,7 +1118,7 @@ def froom_edit(acc):
     form = EditFlatRoomsForm()
     form.place_num.data = froom.place_num
     form.room_num.data = froom.room_num
-    form.rent.data = froom.monthly_rent
+    form.rent.data = "{:.2f}".format(froom.monthly_rent)
     form.flat_num.data = froom.flat_num
     form.capacity.data = froom.capacity
 
@@ -1129,13 +1131,15 @@ def froom_edit(acc):
         return redirect(url_for('froom_list'))
     return render_template('froom_edit.html', form=form)
 
-@app.route("/froom_del/<acc>", methods=["POST", "GET"])
+@app.route("/froom_del/<acc>", methods=["GET", "POST"])
 def froom_del(acc):
     if session['admin'] is None:
         abort(403)
     froom = FlatsRooms.query.filter_by(place_num=acc).first()
+    flat = StuFlats.query.filter_by(flat_num=froom.flat_num).first()
     try:
         db.session.delete(froom)
+        flat.avail_room = flat.avail_room + 1
         db.session.commit()
         flash('The record of the Student Flat room has been deleted', 'success')
     except IntegrityError and OperationalError:
@@ -1143,7 +1147,7 @@ def froom_del(acc):
         flash('The record of the Student Flat room cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('froom_list'))
 
-@app.route("/leases", methods=["POST", "GET"])
+@app.route("/leases", methods=["GET", "POST"])
 def leases():
     if session['admin'] is None:
         abort(403)
@@ -1206,14 +1210,14 @@ def leases():
                     return redirect(url_for('leases'))
     return render_template('leases.html', form=form)
 
-@app.route("/hall_leases", methods=["POST", "GET"])
+@app.route("/hall_leases", methods=["GET", "POST"])
 def hall_leases():
     if session['admin'] is None:
         abort(403)
     leases = LeasesHalls.query.order_by(LeasesHalls.lease_num.desc())
     return render_template('hall_leases.html', leases=leases)
 
-@app.route("/hall_lease/<acc>", methods=["POST", "GET"])
+@app.route("/hall_lease/<acc>", methods=["GET", "POST"])
 def hall_lease(acc):
     if session['admin'] is None:
         abort(403)
@@ -1223,7 +1227,7 @@ def hall_lease(acc):
     hall = HallRes.query.filter_by(hall_num=hroom.hall_num).first()
     return render_template('hall_lease.html', lease=lease, student=student, hroom=hroom, hall=hall)
 
-@app.route("/hlease_edit/<acc>", methods=["POST", "GET"])
+@app.route("/hlease_edit/<acc>", methods=["GET", "POST"])
 def hlease_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -1246,13 +1250,17 @@ def hlease_edit(acc):
         return redirect(url_for('hall_leases'))
     return render_template('hlease_edit.html', form=form)
 
-@app.route("/hlease_del/<acc>", methods=["POST", "GET"])
+@app.route("/hlease_del/<acc>", methods=["GET", "POST"])
 def hlease_del(acc):
     if session['admin'] is None:
         abort(403)
     lease = LeasesHalls.query.filter_by(lease_num=acc).first()
+    student = Students.query.filter_by(grade_num=lease.grade_num).first()
+    hroom = HallRooms.query.filter_by(place_num=lease.place_num).first()
     try:
         db.session.delete(lease)
+        student.status = "Waiting"
+        hroom.capacity = hroom.capacity + 1
         db.session.commit()
         flash('The record of the Residence Hall lease has been deleted', 'success')
     except IntegrityError and OperationalError:
@@ -1260,14 +1268,14 @@ def hlease_del(acc):
         flash('The record of the Residence Hall lease cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('hall_leases'))
 
-@app.route("/flat_leases", methods=["POST", "GET"])
+@app.route("/flat_leases", methods=["GET", "POST"])
 def flat_leases():
     if session['admin'] is None:
         abort(403)
     leases = LeasesFlats.query.order_by(LeasesFlats.lease_num.desc())
     return render_template('flat_leases.html', leases=leases)
 
-@app.route("/flat_lease/<acc>", methods=["POST", "GET"])
+@app.route("/flat_lease/<acc>", methods=["GET", "POST"])
 def flat_lease(acc):
     if session['admin'] is None:
         abort(403)
@@ -1277,7 +1285,7 @@ def flat_lease(acc):
     flat = StuFlats.query.filter_by(flat_num=froom.flat_num).first()
     return render_template('flat_lease.html', lease=lease, student=student, froom=froom, flat=flat)
 
-@app.route("/flease_edit/<acc>", methods=["POST", "GET"])
+@app.route("/flease_edit/<acc>", methods=["GET", "POST"])
 def flease_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -1300,13 +1308,17 @@ def flease_edit(acc):
         return redirect(url_for('flat_leases'))
     return render_template('flease_edit.html', form=form)
 
-@app.route("/flease_del/<acc>", methods=["POST", "GET"])
+@app.route("/flease_del/<acc>", methods=["GET", "POST"])
 def flease_del(acc):
     if session['admin'] is None:
         abort(403)
     lease = LeasesFlats.query.filter_by(lease_num=acc).first()
+    student = Students.query.filter_by(grade_num=lease.grade_num).first()
+    froom = FlatsRooms.query.filter_by(place_num=lease.place_num).first()
     try:
         db.session.delete(lease)
+        student.status = "Waiting"
+        froom.capacity = froom.capacity + 1
         db.session.commit()
         flash('The record of the Student Flat lease has been deleted', 'success')
     except IntegrityError and OperationalError:
@@ -1314,7 +1326,7 @@ def flease_del(acc):
         flash('The record of the Student Flat lease cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('flat_leases'))
 
-@app.route("/invoices", methods=["POST", "GET"])
+@app.route("/invoices", methods=["GET", "POST"])
 def invoices():
     if session['admin'] is None:
         abort(403)
@@ -1369,14 +1381,14 @@ def invoices():
                 return redirect(url_for('invoices'))
     return render_template('invoices.html', form=form)
 
-@app.route("/hall_invoices", methods=["POST", "GET"])
+@app.route("/hall_invoices", methods=["GET", "POST"])
 def hall_invoices():
     if session['admin'] is None:
         abort(403)
     invoices = InvoicesHalls.query.order_by(InvoicesHalls.invoice_num.desc())
     return render_template('hall_invoices.html', invoices=invoices)
 
-@app.route("/hall_invoice/<acc>", methods=["POST", "GET"])
+@app.route("/hall_invoice/<acc>", methods=["GET", "POST"])
 def hall_invoice(acc):
     if session['admin'] is None:
         abort(403)
@@ -1387,7 +1399,7 @@ def hall_invoice(acc):
     hall = HallRes.query.filter_by(hall_num=hroom.hall_num).first()
     return render_template('hall_invoice.html', invoice=invoice, lease=lease, student=student, hroom=hroom, hall=hall)
 
-@app.route("/hinvoice_edit/<acc>", methods=["POST", "GET"])
+@app.route("/hinvoice_edit/<acc>", methods=["GET", "POST"])
 def hinvoice_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -1415,7 +1427,7 @@ def hinvoice_edit(acc):
         return redirect(url_for('hall_invoices'))
     return render_template('hinvoice_edit.html', form=form)
 
-@app.route("/hinvoice_del/<acc>", methods=["POST", "GET"])
+@app.route("/hinvoice_del/<acc>", methods=["GET", "POST"])
 def hinvoice_del(acc):
     if session['admin'] is None:
         abort(403)
@@ -1429,14 +1441,14 @@ def hinvoice_del(acc):
         flash('The record of the Residence Hall invoice cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('hall_invoices'))
 
-@app.route("/flat_invoices", methods=["POST", "GET"])
+@app.route("/flat_invoices", methods=["GET", "POST"])
 def flat_invoices():
     if session['admin'] is None:
         abort(403)
     invoices = InvoicesFlats.query.order_by(InvoicesFlats.invoice_num.desc())
     return render_template('flat_invoices.html', invoices=invoices)
 
-@app.route("/flat_invoice/<acc>", methods=["POST", "GET"])
+@app.route("/flat_invoice/<acc>", methods=["GET", "POST"])
 def flat_invoice(acc):
     if session['admin'] is None:
         abort(403)
@@ -1447,7 +1459,7 @@ def flat_invoice(acc):
     flat = StuFlats.query.filter_by(flat_num=froom.flat_num).first()
     return render_template('flat_invoice.html', invoice=invoice, lease=lease, student=student, froom=froom, flat=flat)
 
-@app.route("/finvoice_edit/<acc>", methods=["POST", "GET"])
+@app.route("/finvoice_edit/<acc>", methods=["GET", "POST"])
 def finvoice_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -1475,7 +1487,7 @@ def finvoice_edit(acc):
         return redirect(url_for('flat_invoices'))
     return render_template('finvoice_edit.html', form=form)
 
-@app.route("/finvoice_del/<acc>", methods=["POST", "GET"])
+@app.route("/finvoice_del/<acc>", methods=["GET", "POST"])
 def finvoice_del(acc):
     if session['admin'] is None:
         abort(403)
@@ -1489,7 +1501,7 @@ def finvoice_del(acc):
         flash('The record of the Student Flat invoice cannot be deleted due to foreign key constraint', 'danger')
     return redirect(url_for('flat_invoices'))
 
-@app.route("/inspections", methods=["POST", "GET"])
+@app.route("/inspections", methods=["GET", "POST"])
 def inspections():
     if session['admin'] is None:
         abort(403)
@@ -1525,14 +1537,14 @@ def inspections():
             return redirect(url_for('inspections'))
     return render_template('inspections.html', form=form)
 
-@app.route("/inspect_list", methods=["POST", "GET"])
+@app.route("/inspect_list", methods=["GET", "POST"])
 def inspect_list():
     if session['admin'] is None:
         abort(403)
     inspects = Inspections.query.order_by(Inspections.inspect_num.desc())
     return render_template('inspect_list.html', inspects=inspects)
 
-@app.route("/inspect_info/<acc>", methods=["POST", "GET"])
+@app.route("/inspect_info/<acc>", methods=["GET", "POST"])
 def inspect_info(acc):
     if session['admin'] is None:
         abort(403)
@@ -1541,7 +1553,7 @@ def inspect_info(acc):
     flat = StuFlats.query.filter_by(flat_num=inspect.flat_num).first()
     return render_template('inspect_info.html', inspect=inspect, staff=staff, flat=flat)
 
-@app.route("/inspect_edit/<acc>", methods=["POST", "GET"])
+@app.route("/inspect_edit/<acc>", methods=["GET", "POST"])
 def inspect_edit(acc):
     if session['admin'] is None:
         abort(403)
@@ -1564,7 +1576,7 @@ def inspect_edit(acc):
         return redirect(url_for('inspect_list'))
     return render_template('inspect_edit.html', form=form)
 
-@app.route("/inspect_del/<acc>", methods=["POST", "GET"])
+@app.route("/inspect_del/<acc>", methods=["GET", "POST"])
 def inspect_del(acc):
     if session['admin'] is None:
         abort(403)
