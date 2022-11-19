@@ -74,6 +74,16 @@
     {% if session['admin'] %}
     <h1 align="center">List Of Student Flat Inspections</h1>
     <br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{category}}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <table class="tables">
         <thead>
         <tr>
@@ -83,6 +93,7 @@
           <th>Date Of Inspection</th>
           <th>Satisfied</th>
           <th>Details</th>
+          <th>Edit</th>
         </tr>
         </thead>
         <tbody>
@@ -94,6 +105,7 @@
           <td>{{inspect.inspect_date}}</td>
           <td>{{inspect.satisfy}}</td>
           <td><a href="{{ url_for('inspect_info', acc=inspect.inspect_num) }}">Info <i class="icon-zoom-in"></i></a></td>
+          <td><a href="{{ url_for('inspect_edit', acc=inspect.inspect_num) }}">Edit <i class="icon-edit"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

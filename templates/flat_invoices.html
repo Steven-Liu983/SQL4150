@@ -74,6 +74,16 @@
     {% if session['admin'] %}
     <h1 align="center">Invoices Of Student Flats</h1>
     <br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{category}}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <table class="tables">
         <thead>
         <tr>
@@ -86,6 +96,7 @@
           <th>First Reminder</th>
           <th>Second Reminder</th>
           <th>Details</th>
+          <th>Edit</th>
         </tr>
         </thead>
         <tbody>
@@ -100,6 +111,7 @@
           <td>{{invoice.first_reminder}}</td>
           <td>{{invoice.second_reminder}}</td>
           <td><a href="{{ url_for('flat_invoice', acc=invoice.invoice_num) }}">Info <i class="icon-zoom-in"></i></a></td>
+          <td><a href="{{ url_for('finvoice_edit', acc=invoice.invoice_num) }}">Edit <i class="icon-edit"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

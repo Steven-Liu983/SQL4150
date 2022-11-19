@@ -74,6 +74,16 @@
     {% if session['admin'] %}
     <h1 align="center">Leases Of Student Flats</h1>
     <br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{category}}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <table class="tables">
         <thead>
         <tr>
@@ -84,6 +94,7 @@
           <th>Lease Start</th>
           <th>Lease End</th>
           <th>Details</th>
+          <th>Edit</th>
         </tr>
         </thead>
         <tbody>
@@ -96,6 +107,7 @@
           <td>{{lease.lease_start}}</td>
           <td>{{lease.lease_end}}</td>
           <td><a href="{{ url_for('flat_lease', acc=lease.lease_num) }}">Info <i class="icon-zoom-in"></i></a></td>
+          <td><a href="{{ url_for('flease_edit', acc=lease.lease_num) }}">Edit <i class="icon-edit"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>

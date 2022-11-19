@@ -38,7 +38,7 @@
   <div class='dropdown'>
     <a href="{{url_for('stu_flats')}}"><i class="icon-home"></i> Student Flats</a>
     <div class="dropdown-content">
-        <a class="active" href="{{url_for('flat_list')}}">Flat List</a>
+        <a href="{{url_for('flat_list')}}">Flat List</a>
     </div>
   </div>
   <div class='dropdown'>
@@ -58,7 +58,7 @@
     <a href="{{url_for('invoices')}}"><i class="icon-credit-card"></i> Invoices</a>
     <div class="dropdown-content">
         <a href="{{url_for('hall_invoices')}}">Hall Invoices</a>
-        <a href="{{url_for('flat_invoices')}}">Flat Invoices</a>
+        <a class="active" href="{{url_for('flat_invoices')}}">Flat Invoices</a>
     </div>
   </div>
   <div class='dropdown'>
@@ -71,44 +71,51 @@
 
 <div class="main">
   <div class="jumbotron">
-    {% if session['admin'] %}
-    <h1 align="center">List Of Student Flats</h1>
+    <h1 align="center">Edit The Student Flat Invoice</h1>
     <br>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{category}}" role="alert">
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
 
-    <table class="tables">
-        <thead>
-        <tr>
-          <th>Flat Number</th>
-          <th>Address</th>
-          <th>Available Rooms</th>
-          <th>Details</th>
-          <th>Edit</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for flat in flats %}
-        <tr>
-          <td>{{flat.flat_num}}</td>
-          <td>{{flat.flat_address}}</td>
-          <td>{{flat.avail_room}}</td>
-          <td><a href="{{ url_for('flat_info', acc=flat.flat_num) }}">Info <i class="icon-zoom-in"></i></a></td>
-          <td><a href="{{ url_for('flat_edit', acc=flat.flat_num) }}">Edit <i class="icon-edit"></i></a></td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-      <a href="{{ url_for('login') }}">Login</a>
-    {% endif %}
+    <form method="POST">
+      {{ form.hidden_tag()}}
+      <div class="form-row">
+        <div class="form-group col-md-4">
+            <strong>{{ form.invoice_num.label }}</strong>
+            {{ form.invoice_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.lease_num.label }}</strong>
+            {{ form.lease_num(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.payment_due.label }}</strong>
+            {{ form.payment_due(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+            <strong>{{ form.payment_paid.label }}</strong>
+            {{ form.payment_paid(class="form-control") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.payment_date.label }}</strong>
+            {{ form.payment_date(class="form-control", type="date") }}
+        </div>
+        <div class="form-group col-md-4">
+            <strong>{{ form.payment_method.label }}</strong>
+            {{ form.payment_method(class="form-control") }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <strong>{{ form.first_reminder.label }}</strong>
+            {{ form.first_reminder(class="form-control", type="date") }}
+        </div>
+        <div class="form-group col-md-6">
+            <strong>{{ form.second_reminder.label }}</strong>
+            {{ form.second_reminder(class="form-control", type="date") }}
+        </div>
+      </div>
+      {{ form.submit(class="btn btn-success") }}
+    </form>
   </div>
 </div>
 

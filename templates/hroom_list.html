@@ -74,6 +74,16 @@
     {% if session['admin'] %}
     <h1 align="center">List Of Rooms In The Halls</h1>
     <br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{category}}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <h5>Hall 1</h5>
     <table class="tables">
         <thead>
@@ -83,6 +93,7 @@
           <th>Monthly Rent</th>
           <th>Capacity</th>
           <th>Details</th>
+          <th>Edit</th>
         </tr>
         </thead>
         <tbody>
@@ -93,6 +104,7 @@
           <td>${{ "{:.2f}".format(one_room.monthly_rent) }}</td>
           <td>{{one_room.capacity}}</td>
           <td><a href="{{ url_for('hroom_info', acc=one_room.place_num) }}">Info <i class="icon-zoom-in"></i></a></td>
+          <td><a href="{{ url_for('hroom_edit', acc=one_room.place_num) }}">Edit <i class="icon-edit"></i></a></td>
         </tr>
         {% endfor %}
         </tbody>
