@@ -2,6 +2,7 @@ from flask import Flask, flash, session, abort, render_template, request, url_fo
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from sqlalchemy import Column, ForeignKey, Integer, Table
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import StringField, IntegerField, SubmitField, FloatField, PasswordField, SelectField, TextAreaField, DateTimeLocalField
 from wtforms.validators import InputRequired, EqualTo, Length, ValidationError, NumberRange
@@ -370,11 +371,24 @@ class HallRoomsForm(FlaskForm):
     hall_num = IntegerField('Hall Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     submit = SubmitField('Add Room')
 
+class EditHallRoomsForm(FlaskForm):
+    place_num = IntegerField('Place Number', render_kw={'readonly': True})
+    room_num = IntegerField('Room Number', validators=[InputRequired(), NumberRange(min=101, max=199)])
+    rent = FloatField('Monthly Rent $', validators=[InputRequired()])
+    hall_num = IntegerField('Hall Number', render_kw={'readonly': True})
+    submit = SubmitField('Update')
+
 class StuFlatsForm(FlaskForm):
     flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     address = StringField('Address', validators=[InputRequired(), Length(min=2, max=50)])
     avail_room = IntegerField('Available Bedrooms', validators=[InputRequired(), NumberRange(min=1, max=30)])
     submit = SubmitField('Add Flat')
+
+class EditStuFlatsForm(FlaskForm):
+    flat_num = IntegerField('Flat Number', render_kw={'readonly': True})
+    address = StringField('Address', validators=[InputRequired(), Length(min=2, max=50)])
+    avail_room = IntegerField('Available Bedrooms', render_kw={'readonly': True})
+    submit = SubmitField('Update')
 
 class FlatRoomsForm(FlaskForm):
     place_num = IntegerField('Place Number', validators=[InputRequired(), NumberRange(min=1001, max=1030)])
@@ -383,6 +397,14 @@ class FlatRoomsForm(FlaskForm):
     flat_num = IntegerField('Flat Number', validators=[InputRequired(), NumberRange(min=1, max=9)])
     capacity = IntegerField('Number Of Beds', validators=[InputRequired(), NumberRange(min=3, max=5)])
     submit = SubmitField('Add Bedroom')
+
+class EditFlatRoomsForm(FlaskForm):
+    place_num = IntegerField('Place Number', render_kw={'readonly': True})
+    room_num = IntegerField('Bedroom Number', validators=[InputRequired(), NumberRange(min=1001, max=1030)])
+    rent = FloatField('Monthly Rent $', validators=[InputRequired()])
+    flat_num = IntegerField('Flat Number', render_kw={'readonly': True})
+    capacity = IntegerField('Number Of Beds', render_kw={'readonly': True})
+    submit = SubmitField('Update')
 
 class LeasesForm(FlaskForm):
     lease_num = IntegerField('Lease Number', validators=[InputRequired()])    # building + place_num
@@ -393,6 +415,15 @@ class LeasesForm(FlaskForm):
     lease_start = DateTimeLocalField('Start Date', format='%Y-%m-%d')
     lease_end = DateTimeLocalField('End Date', format='%Y-%m-%d')
     submit = SubmitField('Add Lease')
+
+class EditLeasesForm(FlaskForm):
+    lease_num = IntegerField('Lease Number', render_kw={'readonly': True})
+    semester = IntegerField('Number of Semesters', validators=[InputRequired(), NumberRange(min=1, max=3)])
+    grade_num = IntegerField('Grade 12 Number', render_kw={'readonly': True})
+    place_num = IntegerField('Place Number', render_kw={'readonly': True})
+    lease_start = DateTimeLocalField('Start Date', format='%Y-%m-%d')
+    lease_end = DateTimeLocalField('End Date', format='%Y-%m-%d')
+    submit = SubmitField('Update')
 
 class InvoicesForm(FlaskForm):
     invoice_num = IntegerField('Invoice Number', validators=[InputRequired()])
@@ -406,6 +437,17 @@ class InvoicesForm(FlaskForm):
     second_reminder = DateTimeLocalField('Second Reminder Date', format='%Y-%m-%d') # payment due date
     submit = SubmitField('Add Invoice')
 
+class EditInvoicesForm(FlaskForm):
+    invoice_num = IntegerField('Invoice Number', render_kw={'readonly': True})
+    lease_num = IntegerField('Lease Number', render_kw={'readonly': True})
+    payment_due = FloatField('Payment Due $', validators=[InputRequired()])
+    payment_paid = FloatField('Payment Paid $', validators=[InputRequired()])
+    payment_date = DateTimeLocalField('Payment Date', format='%Y-%m-%d')
+    payment_method = SelectField('Payment Method', choices=['N/A', 'Cheque', 'Cash', 'Debit Card', 'Online Banking', 'Money Order'])
+    first_reminder = DateTimeLocalField('First Reminder Date', format='%Y-%m-%d')
+    second_reminder = DateTimeLocalField('Second Reminder Date', format='%Y-%m-%d')
+    submit = SubmitField('Update')
+
 class InspectForm(FlaskForm):
     inspect_num = IntegerField('Inspection Number', validators=[InputRequired(), NumberRange(min=10, max=999)])
     staff_num = IntegerField('Staff Number', validators=[InputRequired(), NumberRange(min=100000, max=999999)])
@@ -414,6 +456,15 @@ class InspectForm(FlaskForm):
     satisfy = SelectField('Satisfactory', choices=['Yes', 'No'])
     comments = TextAreaField('Comments')
     submit = SubmitField('Add Inspection')
+
+class EditInspectForm(FlaskForm):
+    inspect_num = IntegerField('Inspection Number', render_kw={'readonly': True})
+    staff_num = IntegerField('Staff Number', render_kw={'readonly': True})
+    flat_num = IntegerField('Flat Number', render_kw={'readonly': True})
+    inspect_date = DateTimeLocalField('Inspection Date', format='%Y-%m-%d')
+    satisfy = SelectField('Satisfactory', choices=['Yes', 'No'])
+    comments = TextAreaField('Comments')
+    submit = SubmitField('Update')
 
 class StaffForm(FlaskForm):
     staff_num = IntegerField('Staff Number', validators=[InputRequired(), NumberRange(min=100000, max=999999)])
@@ -852,6 +903,26 @@ def hroom_info(acc):
     hall = HallRes.query.filter_by(hall_num=hroom.hall_num).first()
     return render_template('hroom_info.html', hroom=hroom, hall=hall)
 
+@app.route("/hroom_edit/<acc>", methods=["POST", "GET"])
+def hroom_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    hroom = HallRooms.query.filter_by(place_num=acc).first()
+    form = EditHallRoomsForm()
+    form.place_num.data = hroom.place_num
+    form.room_num.data = hroom.room_num
+    form.rent.data = hroom.monthly_rent
+    form.hall_num.data = hroom.hall_num
+
+    if form.validate_on_submit():
+        form = EditHallRoomsForm()
+        hroom.room_num = form.room_num.data
+        hroom.monthly_rent = form.rent.data
+        db.session.commit()
+        flash('The information of the Residence Hall room has been updated', 'success')
+        return redirect(url_for('hroom_list'))
+    return render_template('hroom_edit.html', form=form)
+
 @app.route("/stu_flats", methods=["POST", "GET"])
 def stu_flats():
     if session['admin'] is None:
@@ -887,6 +958,24 @@ def flat_info(acc):
         abort(403)
     flat = StuFlats.query.filter_by(flat_num=acc).first()
     return render_template('flat_info.html', flat=flat)
+
+@app.route("/flat_edit/<acc>", methods=["POST", "GET"])
+def flat_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    flat = StuFlats.query.filter_by(flat_num=acc).first()
+    form = EditStuFlatsForm()
+    form.flat_num.data = flat.flat_num
+    form.address.data = flat.flat_address
+    form.avail_room.data = flat. avail_room
+
+    if form.validate_on_submit():
+        form = EditStuFlatsForm()
+        flat.flat_address = form.address.data
+        db.session.commit()
+        flash('The information of the Student Flat has been updated', 'success')
+        return redirect(url_for('flat_list'))
+    return render_template('flat_edit.html', form=form)
 
 @app.route("/flat_rooms", methods=["POST", "GET"])
 def flat_rooms():
@@ -934,6 +1023,27 @@ def froom_info(acc):
     froom = FlatsRooms.query.filter_by(place_num=acc).first()
     flat = StuFlats.query.filter_by(flat_num=froom.flat_num).first()
     return render_template('froom_info.html', froom=froom, flat=flat)
+
+@app.route("/froom_edit/<acc>", methods=["POST", "GET"])
+def froom_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    froom = FlatsRooms.query.filter_by(place_num=acc).first()
+    form = EditFlatRoomsForm()
+    form.place_num.data = froom.place_num
+    form.room_num.data = froom.room_num
+    form.rent.data = froom.monthly_rent
+    form.flat_num.data = froom.flat_num
+    form.capacity.data = froom.capacity
+
+    if form.validate_on_submit():
+        form = EditFlatRoomsForm()
+        froom.room_num = form.room_num.data
+        froom.monthly_rent = form.rent.data
+        db.session.commit()
+        flash('The information of the Student Flat room has been updated', 'success')
+        return redirect(url_for('froom_list'))
+    return render_template('froom_edit.html', form=form)
 
 @app.route("/leases", methods=["POST", "GET"])
 def leases():
@@ -1015,6 +1125,29 @@ def hall_lease(acc):
     hall = HallRes.query.filter_by(hall_num=hroom.hall_num).first()
     return render_template('hall_lease.html', lease=lease, student=student, hroom=hroom, hall=hall)
 
+@app.route("/hlease_edit/<acc>", methods=["POST", "GET"])
+def hlease_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    lease = LeasesHalls.query.filter_by(lease_num=acc).first()
+    form = EditLeasesForm()
+    form.lease_num.data = lease.lease_num
+    form.semester.data = lease.semester
+    form.grade_num.data = lease.grade_num
+    form.place_num.data = lease.place_num
+    form.lease_start.data = lease.lease_start
+    form.lease_end.data = lease.lease_end
+
+    if form.validate_on_submit():
+        form = EditLeasesForm()
+        lease.semester = form.semester.data
+        lease.lease_start = form.lease_start.data
+        lease.lease_end = form.lease_end.data
+        db.session.commit()
+        flash('The information of the Residence Hall lease has been updated', 'success')
+        return redirect(url_for('hall_leases'))
+    return render_template('hlease_edit.html', form=form)
+
 @app.route("/flat_leases", methods=["POST", "GET"])
 def flat_leases():
     if session['admin'] is None:
@@ -1031,6 +1164,29 @@ def flat_lease(acc):
     froom = FlatsRooms.query.filter_by(place_num=lease.place_num).first()
     flat = StuFlats.query.filter_by(flat_num=froom.flat_num).first()
     return render_template('flat_lease.html', lease=lease, student=student, froom=froom, flat=flat)
+
+@app.route("/flease_edit/<acc>", methods=["POST", "GET"])
+def flease_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    lease = LeasesFlats.query.filter_by(lease_num=acc).first()
+    form = EditLeasesForm()
+    form.lease_num.data = lease.lease_num
+    form.semester.data = lease.semester
+    form.grade_num.data = lease.grade_num
+    form.place_num.data = lease.place_num
+    form.lease_start.data = lease.lease_start
+    form.lease_end.data = lease.lease_end
+
+    if form.validate_on_submit():
+        form = EditLeasesForm()
+        lease.semester = form.semester.data
+        lease.lease_start = form.lease_start.data
+        lease.lease_end = form.lease_end.data
+        db.session.commit()
+        flash('The information of the Student Flat lease has been updated', 'success')
+        return redirect(url_for('flat_leases'))
+    return render_template('flease_edit.html', form=form)
 
 @app.route("/invoices", methods=["POST", "GET"])
 def invoices():
@@ -1105,6 +1261,34 @@ def hall_invoice(acc):
     hall = HallRes.query.filter_by(hall_num=hroom.hall_num).first()
     return render_template('hall_invoice.html', invoice=invoice, lease=lease, student=student, hroom=hroom, hall=hall)
 
+@app.route("/hinvoice_edit/<acc>", methods=["POST", "GET"])
+def hinvoice_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    invoice = InvoicesHalls.query.filter_by(invoice_num=acc).first()
+    form = EditInvoicesForm()
+    form.invoice_num.data = invoice.invoice_num
+    form.lease_num.data = invoice.lease_num
+    form.payment_due.data = "{:.2f}".format(invoice.payment_due)
+    form.payment_paid.data = "{:.2f}".format(invoice.payment_paid)
+    form.payment_date.data = invoice.payment_date
+    form.payment_method.data = invoice.payment_method
+    form.first_reminder.data = invoice.first_reminder
+    form.second_reminder.data = invoice.second_reminder
+
+    if form.validate_on_submit():
+        form = EditInvoicesForm()
+        invoice.payment_due = form.payment_due.data
+        invoice.payment_paid = form.payment_paid.data
+        invoice.payment_date = form.payment_date.data
+        invoice.payment_method = form.payment_method.data
+        invoice.first_reminder = form.first_reminder.data
+        invoice.second_reminder = form.second_reminder.data
+        db.session.commit()
+        flash('The information of the Residence Hall invoice has been updated', 'success')
+        return redirect(url_for('hall_invoices'))
+    return render_template('hinvoice_edit.html', form=form)
+
 @app.route("/flat_invoices", methods=["POST", "GET"])
 def flat_invoices():
     if session['admin'] is None:
@@ -1122,6 +1306,34 @@ def flat_invoice(acc):
     froom = FlatsRooms.query.filter_by(place_num=lease.place_num).first()
     flat = StuFlats.query.filter_by(flat_num=froom.flat_num).first()
     return render_template('flat_invoice.html', invoice=invoice, lease=lease, student=student, froom=froom, flat=flat)
+
+@app.route("/finvoice_edit/<acc>", methods=["POST", "GET"])
+def finvoice_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    invoice = InvoicesFlats.query.filter_by(invoice_num=acc).first()
+    form = EditInvoicesForm()
+    form.invoice_num.data = invoice.invoice_num
+    form.lease_num.data = invoice.lease_num
+    form.payment_due.data = "{:.2f}".format(invoice.payment_due)
+    form.payment_paid.data = "{:.2f}".format(invoice.payment_paid)
+    form.payment_date.data = invoice.payment_date
+    form.payment_method.data = invoice.payment_method
+    form.first_reminder.data = invoice.first_reminder
+    form.second_reminder.data = invoice.second_reminder
+
+    if form.validate_on_submit():
+        form = EditInvoicesForm()
+        invoice.payment_due = form.payment_due.data
+        invoice.payment_paid = form.payment_paid.data
+        invoice.payment_date = form.payment_date.data
+        invoice.payment_method = form.payment_method.data
+        invoice.first_reminder = form.first_reminder.data
+        invoice.second_reminder = form.second_reminder.data
+        db.session.commit()
+        flash('The information of the Student Flat invoice has been updated', 'success')
+        return redirect(url_for('flat_invoices'))
+    return render_template('finvoice_edit.html', form=form)
 
 @app.route("/inspections", methods=["POST", "GET"])
 def inspections():
@@ -1174,6 +1386,29 @@ def inspect_info(acc):
     staff = Staffs.query.filter_by(staff_num=inspect.staff_num).first()
     flat = StuFlats.query.filter_by(flat_num=inspect.flat_num).first()
     return render_template('inspect_info.html', inspect=inspect, staff=staff, flat=flat)
+
+@app.route("/inspect_edit/<acc>", methods=["POST", "GET"])
+def inspect_edit(acc):
+    if session['admin'] is None:
+        abort(403)
+    inspect = Inspections.query.filter_by(inspect_num=acc).first()
+    form = EditInspectForm()
+    form.inspect_num.data = inspect.inspect_num
+    form.staff_num.data = inspect.staff_num
+    form.flat_num.data = inspect.flat_num
+    form.inspect_date.data = inspect.inspect_date
+    form.satisfy.data = inspect.satisfy
+    form.comments.data = inspect.comments
+
+    if form.validate_on_submit():
+        form = EditInspectForm()
+        inspect.inspect_date = form.inspect_date.data
+        inspect.satisfy = form.satisfy.data
+        inspect.comments = form.comments.data
+        db.session.commit()
+        flash('The information of the Student Flat inspection has been updated', 'success')
+        return redirect(url_for('inspect_list'))
+    return render_template('inspect_edit.html', form=form)
 
 @app.route('/logout', methods=['GET'])
 def logout():
